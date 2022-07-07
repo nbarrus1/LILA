@@ -75,7 +75,7 @@ table(FISH_CRAY_DATA$`Throw Trap`)
 table(FISH_CRAY_DATA$Macrocosm)
 table(FISH_CRAY_DATA$Session)
 
-#fix the errors and change the
+#fix the errors and change the species codes to ALL CAPS because species codes in Lab are in all caps
 FISH_CRAY_DATA <- FISH_CRAY_DATA %>% 
   mutate(`Species Code` = if_else(`Species Code` == "Lep spp",
                                   true = "LEPSPP",
@@ -145,7 +145,7 @@ FISH_CRAY_DATA <- FISH_CRAY_DATA %>%
 
 table(FISH_CRAY_DATA$`Species Code`)
 
-#fix the sexes and change the codes to numbers
+#fix the sexes and change the codes to numbers because code in lab is in all caps
 
 FISH_CRAY_DATA <- FISH_CRAY_DATA %>% 
   mutate(Sex = if_else(Sex == "M",
@@ -159,7 +159,11 @@ FISH_CRAY_DATA <- FISH_CRAY_DATA %>%
                                                                        false = 2)))))
 #check the sex codes
 
-table(FISH_CRAY_DATA$Sex)
+table(FISH_CRAY_DATA$Sex) 
+
+#combine our catch dates and the info on the people who QA/QC the data
+#rename the variables to the format we would like
+#add the month day year as variables
 
 FISH_CRAY_DATA <- FISH_CRAY_DATA %>% 
   left_join(COD, by = c("Session", "Macrocosm","Throw Trap")) %>% 
@@ -172,13 +176,13 @@ FISH_CRAY_DATA <- FISH_CRAY_DATA %>%
          form = Form,
          comments = Notes,
          doc = Date,
-         dop = `Date (sample proccesing)`)
-
-FISH_CRAY_DATA <- FISH_CRAY_DATA %>% 
-  mutate(month = month(doc),
+         dop = `Date (sample proccesing)`) %>% 
+    left_join(QA, by = "session") %>% 
+    mutate(month = month(doc),
          day = day(doc),
-         year = year(doc)) %>% 
-  left_join(QA, by = "session") 
+         year = year(doc))
+
+#change the order of the variables
 
 FISH_CRAY_DATA <- FISH_CRAY_DATA %>% 
   select(session,doc,year,month,day,macrocosm,throw,species,length,sex,form,comments,dop,sorted.by,entered.by,checked.by) 
@@ -222,3 +226,5 @@ CRAY <- FISH_CRAY_DATA %>%
 CRAY %>% 
   filter(year == 2021) %>% 
   write_csv(file = "M:/LILA/LILA Data Entry/2021/LILA_TT_2021_CRAY.csv")
+
+
