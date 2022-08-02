@@ -4,8 +4,8 @@ The Loxahatchee Impoundment Landscape Assessment (LILA) are 4-8ha experimental w
 
 #### Stage Contrast
 
- - [Stage Contrast R Code](https://github.com/nbarrus1/LILA/tree/main/Stage%20Contrast/R%20files)
+ - [Stage Contrast R Code](https://github.com/nbarrus1/LILA/tree/main/Stage%20Contrast/)
 
 #### Apple Snail Recruitment
 
-- [Pomacea](https://github.com/nbarrus1/LILA/tree/main/Pomacea/R_files)
+- [Pomacea](https://github.com/nbarrus1/LILA/tree/main/Pomacea/)
