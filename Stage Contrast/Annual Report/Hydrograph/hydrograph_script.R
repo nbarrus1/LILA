@@ -13,7 +13,7 @@ library(lubridate)    #package with in tidyverse used for working with dates
 ##Line 18 -> renames 'Daily Date' as Date
 ##Line 19 -> renames 'Data Value' as Depth.ft
 
-depth.raw <- read_csv("LilaDepths_06-01-2018--07-28-2022.csv", skip = 6) %>% 
+depth.raw <- read_csv("M:/LILA/Pomacea/FAU/Barrus_Data/Hydrograph/LilaDepths_06-01-2018--07-28-2022.csv", skip = 6) %>% 
   rename(Cell = Station,
          Date = 'Daily Date',
          Depth.ft = 'Data Value') 
