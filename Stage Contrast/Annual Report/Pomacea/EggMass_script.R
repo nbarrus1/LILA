@@ -29,7 +29,7 @@ eggdata.master <- read_excel("M:/LILA/LILA Data Entry/eggmass_2018-2021/EggMassS
 #from Cell M4 (see code lines 39-41)
 
 
-eggdata.2022 <- read_excel("M:/LILA/LILA Data Entry/2022/LILA_EMS_2022_EMC.xlsx",
+eggdata.2022 <- read_excel("M:/LILA/LILA Data Entry/2022/Egg Masses/LILA_EMS_2022_EMC.xlsx",
                            sheet = 1) %>% 
   rename(Cell = Macrocosm,
          Notes = Comment) %>% 
