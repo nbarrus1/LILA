@@ -1,4 +1,4 @@
-#### LILA STAGE CONTRAST EXPERIMENT CRAYFISH IMPORT CHECK CODE 
+#### LILA STAGE CONTRAST EXPERIMENT FISH IMPORT CHECK CODE 
 #### Experiment started WET SEASON of 2018 while NJD was at FAU  
 #### Experiment was managed at FAU From WET SEASON 2018 - WET SEASON 2021 
 #### NJD moved to FIU FROM FAU FALL 2021. all aspects of data analysis and storage 
@@ -14,7 +14,7 @@
 #### STEP 3: DATA MERGE 
 
 #---------------------------------------------------------------------------------------
-#########################*THIS PROGRAM RUNS BEFORE THE CRAY FILE#########################
+#########################*THIS PROGRAM RUNS BEFORE THE FISH FILE#########################
 #--------------------------------------------------------------------------------------
 
 # TO USE THIS PROGRAM:
@@ -42,7 +42,7 @@ library(readxl)
 #readxl allows excel files to be read into R
 
 #### Import Cray file as an xlsx file, update file path every year/season 
-cray_length_spring_2022 <- read_xlsx('M:/LILA/LILA Data Entry/2022/Throw Trapping/Spring/LILA_TT_2022_CRAY_SPRING.xlsx') 
+fish_length_spring_2022 <- read_xlsx('M:/LILA/LILA Data Entry/2022/Throw Trapping/Spring/LILA_TT_2022_FISH_SPRING.xlsx') 
 
 #### 1st QAQC: Checking Session, Wetland, Year, Month, Day, Throw for Errors.
 #note) when checking session, the session name will need to be replaced with
@@ -51,7 +51,7 @@ cray_length_spring_2022 <- read_xlsx('M:/LILA/LILA Data Entry/2022/Throw Trappin
 #note 2) the QC process will change the data type from numeric to character 
 #which makes sense because throw is categorical type variable
 
-QC_cray <- cray_length_spring_2022 %>% 
+QC_FISH <- fish_length_spring_2022 %>% 
   replace_with_na(replace = list(Session = ".",
                                  Wetland = ".",
                                  Year = ".",
@@ -59,9 +59,9 @@ QC_cray <- cray_length_spring_2022 %>%
                                  Day=".",
                                  Throw=".",
                                  Species = ".",
+                                 Location = ".",
                                  Length= ".",
                                  Sex= ".",
-                                 Form= ".",
                                  Comments= ".")) %>% 
   mutate(Session = if_else(Session == "Spring 2022",
                                    true = paste(Session),
@@ -86,7 +86,12 @@ QC_cray <- cray_length_spring_2022 %>%
          Throw = if_else(Throw >0 & 
                          Throw<15,
                                   true = paste(Throw),
-                                  false = "Throw Error"))
+                                  false = "Throw Error"),
+         Location = if_else(Location == "DS"|
+                            Location == "SS"|
+                            Location == "CR",
+                            true = paste(Location),
+                            false = "Location Error"))
 
 #check to see if we have any "Session Errors". the following code should print out any errors in 
 #the R console (bottom left screen). However if there are more than (~10 errors) then it will
@@ -103,7 +108,7 @@ QC_cray <- cray_length_spring_2022 %>%
 
 #when there are no errors the output in the r console will begin with "#A tibble: 0 x 15"
 
-QC_cray %>% 
+QC_FISH %>% 
   filter(Session == "Session Error") 
 
 #same thing as above but for "Wetland Errors"
@@ -113,7 +118,7 @@ QC_cray %>%
 
 #when there are no errors the output in the r console will begin with "#A tibble: 0 x 15"
 
-QC_cray %>% 
+QC_FISH %>% 
   filter(Wetland == "Wetland Error")
 
 #same thing as above but for "Year Errors"
@@ -123,7 +128,7 @@ QC_cray %>%
 
 #when there are no errors the output in the r console will begin with "#A tibble: 0 x 15"
 
-QC_cray %>% 
+QC_FISH %>% 
   filter(Year == "Year Error")
 
 #same thing as above but for "Month Errors"
@@ -134,7 +139,7 @@ QC_cray %>%
 #when there are no errors the output in the r console will begin with "#A tibble: 0 x 15"
 
 
-QC_cray %>% 
+QC_FISH %>% 
   filter(Month == "Month Error")
 
 #same thing as above but for "Day Errors"
@@ -144,7 +149,7 @@ QC_cray %>%
 
 #when there are no errors the output in the r console will begin with "#A tibble: 0 x 15"
 
-QC_cray %>% 
+QC_FISH %>% 
   filter(Day == "Day Error")
 
 #same thing as above but for "Throw Errors"
@@ -154,8 +159,19 @@ QC_cray %>%
 
 #when there are no errors the output in the r console will begin with "#A tibble: 0 x 15"
 
-QC_cray %>% 
+QC_FISH %>% 
   filter(Throw == "Throw Error")
+
+#same thing as above but for "Throw Errors"
+
+###AFTER FIXING ANY ERRORS THE DATA NEEDS TO BE REENTERED AND THE CODE UP TO THIS POINT NEEDS 
+###TO BE RERUN!!!!!
+
+#when there are no errors the output in the r console will begin with "#A tibble: 0 x 15"
+
+QC_FISH %>% 
+  filter(Location == "Location Error")
+
 
 #FIX THESE ERRORS BEFORE MOVING FORWARD!!!!
 
@@ -166,7 +182,7 @@ QC_cray %>%
 #note) the QC process will change the data type from numeric to character 
 #which makes sense because throw is a categorical type variable
 
-QC_cray <- cray_length_spring_2022 %>%
+QC_FISH <- fish_length_spring_2022 %>%
   replace_with_na(replace = list(Session = ".",
                                  Wetland = ".",
                                  Year = ".",
@@ -174,39 +190,49 @@ QC_cray <- cray_length_spring_2022 %>%
                                  Day=".",
                                  Throw=".",
                                  Species = ".",
+                                 Location = ".",
                                  Length= ".",
                                  Sex= ".",
-                                 Form= ".",
-                                 Comments= ".")) %>% 
-  mutate(Species = if_else(Species == "NOCRAY" |
-                           Species == "PROFAL" |
-                           Species == "PROSPP" |
-                           Species == "PROALL",
+                                 Comments= "."))  %>% 
+  mutate(Species = if_else(Species == "NOFISH" |
+                           Species == "CICURO" |
+                           Species == "ELAEVE" |
+                           Species == "ENNGLO" |
+                           Species == "ERISUC" |
+                           Species == "ETHFUS" |
+                           Species == "FUNCHR" |
+                           Species == "FUNCON" |
+                           Species == "GAMHOL" |
+                           Species == "HETFOR" |
+                           Species == "JORFLO" |
+                           Species == "LEPGUL" |
+                           Species == "LEPMAC" |
+                           Species == "LEPMAR" |
+                           Species == "LEPPUN" |
+                           Species == "LUCGOO" |
+                           Species == "MICSAL" |
+                           Species == "POELAT" ,
                                   true = paste(Species),
                                   false = "Species Error"),
          Sex = if_else(Sex == "1" |
                        Sex == "2" |
-                       Sex == "3" |
-                       Sex == "4",
+                       Sex == "3" ,
                                   true = paste(Sex),
                                   false = "Sex Error"),
-         Form = if_else(Form == "1" |
-                        Form == "2" ,
-                                  true = paste(Form),
-                                  false = "Form Error"),
-         Comments = if_else(Comments == "NOCRAY" |
-                            Comments == "HELCOP" |
+         Comments = if_else(Comments == "NOFISH" |
+                            Comments == "DELTPR" |
                             Comments == "NODATA" |
                             Comments == "ROTCUP"|
-                            Comments == "SITDEE"|
-                            Comments == "TRLDRY"|
+                            Comments == "DELTPR"|
+                            Comments == "MELANI"|
                             Comments == "VEGTHK"|
-                            Comments == "SITDRY"|
-                            Comments == "GRAVID",
+                            Comments == "PARAPR"|
+                            Comments == "PRTMIS"|
+                            Comments == "EMPCUP",
                                   true = paste(Comments),
                                   false = "Comments Error"),
          Length = as.numeric(Length),
-         Length = if_else(Length >= 0 & Length < 40,
+         Length = if_else(Length >= 0 & Length < 80,
                           true = paste(Length),
                           false = "Length Error"))
 
@@ -227,7 +253,7 @@ QC_cray <- cray_length_spring_2022 %>%
 
 #when there are no errors the output in the r console will begin with "#A tibble: 0 x 15"
 
-QC_cray %>% 
+QC_FISH %>% 
   filter(Species == "Species Error")
 
 #same thing as above but for "Sex Errors"
@@ -237,18 +263,8 @@ QC_cray %>%
 
 #when there are no errors the output in the r console will begin with "#A tibble: 0 x 15"
 
-QC_cray %>% 
+QC_FISH %>% 
   filter(Sex == "Sex Error")
-
-#same thing as above but for "Form Errors"
-
-###AFTER FIXING ANY ERRORS THE DATA NEEDS TO BE REENTERED AND THE CODE UP TO THIS POINT NEEDS 
-###TO BE RERUN!!!!!
-
-#when there are no errors the output in the r console will begin with "#A tibble: 0 x 15"
-
-QC_cray %>% 
-  filter(Form == "Form Error")
 
 #same thing as above but for "Comments Errors"
 
@@ -257,7 +273,7 @@ QC_cray %>%
 
 #when there are no errors the output in the r console will begin with "#A tibble: 0 x 15"
 
-QC_cray %>% 
+QC_FISH %>% 
   filter(Comments == "Comments Error")
 
 #same thing as above but for "Length Errors"
@@ -267,7 +283,7 @@ QC_cray %>%
 
 #when there are no errors the output in the r console will begin with "#A tibble: 0 x 15"
 
-QC_cray %>% 
+QC_FISH %>% 
   filter(Length == "Length Error")
 
 
@@ -280,13 +296,13 @@ QC_cray %>%
 
 #remove any comments that refer to a single speciment and not an entire cup (e.g., gravid, partmis, etc. )
 
-QC_cray <- QC_cray %>% 
+QC_FISH <- QC_FISH %>% 
   mutate(Comments = if_else(Comments == "ROTCUP"|Comments == "EMPCUP",
                             true = paste(Comments),
                             false = NA_character_)) %>% 
   select(-`Sorted By`,-`Checked By`,-`Entered By`)
 
-table(is.na(QC_cray$Comments)) #no rotcups or empcups in the set means all should be NA (i.e., code spits out all "trues")
+table(is.na(QC_FISH$Comments)) #no rotcups or empcups in the set means all should be NA (i.e., code spits out all "trues")
 
-QC_cray %>% 
-  write_csv(file = "M:/LILA/LILA QAQC_data/2022/1_IMPORT_CHECK_R/LILA_cray_length_2022.csv")
+QC_FISH %>% 
+  write_csv(file = "M:/LILA/LILA QAQC_data/2022/1_IMPORT_CHECK_R/LILA_fish_length_2022.csv")
