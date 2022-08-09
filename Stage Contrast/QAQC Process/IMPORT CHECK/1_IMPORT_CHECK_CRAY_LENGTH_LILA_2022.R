@@ -1,12 +1,12 @@
 #### LILA STAGE CONTRAST EXPERIMENT CRAYFISH IMPORT CHECK CODE 
 #### Experiment started WET SEASON of 2018 while NJD was at FAU  
-#### Experiment was managed at FAU From WET SEASON 2018 - WET SEASon 2021 
+#### Experiment was managed at FAU From WET SEASON 2018 - WET SEASON 2021 
 #### NJD moved to FIU FROM FAU FALL 2021. all aspects of data analysis and storage 
 #### changed to TrexLAB formats to be compatible with all other projects in the LAB 
 #### DATA QA/QC for all other projects in the lab are conducted using SAS, LILA QA/QC 
-#### IS conducted in R. USING THE following code Processees.
+#### IS conducted in R. USING THE following code Processes.
 
-### Code Created 8/3/2022-8/4/2022 by JS and NB
+### Code Created 8/3/2022-8/9/2022 by JS and NB
 
 #### LILA DATA QA/QC process
 #### STEP 1: IMPORT CHECK  (YOU ARE HERE) 
@@ -88,27 +88,83 @@ QC_cray <- cray_length_spring_2022 %>%
                                   true = paste(Throw),
                                   false = "Throw Error"))
 
-#check to see if we have any errors. the following six lines of code should
-#not give and "TRUES" in the R console (bottom left screen). If there are "TRUES", 
-#Click on the QC_cray file in the global environment (top right screen) and the data
-#will open. To find the Errors, click on the variable names and it will automatically sort
-#the data for that variable
+#check to see if we have any "Session Errors". the following code should print out any errors in 
+#the R console (bottom left screen). However if there are more than (~10 errors) then it will
+#only print out the first 10. The first line of the output will give the actual number of session errors. 
+#This output will read: "#A tibble: Some Number x 15" where "Some Number is the number of errors found
+#Fix the first 10 printed errors, then re-upload and rerun the previous line of code
+#to find then additional errors not printed
 
-#FIX THESE ERRORS BEFORE MOVING FORWARD
+#note) some "session errors" may also have errors from other variables.
+#it will be more efficient to fix both before moving on
 
-table(QC_cray$Session == "Session Error") 
-table(QC_cray$Wetland == "Wetland Error") 
-table(QC_cray$Year == "Year Error")
-table(QC_cray$Month == "Month Error")
-table(QC_cray$Day== "Day Error")
-table(QC_cray$Throw == "Throw Error")
+###AFTER FIXING ANY ERRORS THE DATA NEEDS TO BE REENTERED AND THE CODE UP TO THIS POINT NEEDS 
+###TO BE RERUN!!!!!
+
+#when there are no errors the output in the r console will begin with "#A tibble: 0 x 15"
+
+QC_cray %>% 
+  filter(Session == "Session Error") 
+
+#same thing as above but for "Wetland Errors"
+
+###AFTER FIXING ANY ERRORS THE DATA NEEDS TO BE REENTERED AND THE CODE UP TO THIS POINT NEEDS 
+###TO BE RERUN!!!!!
+
+#when there are no errors the output in the r console will begin with "#A tibble: 0 x 15"
+
+QC_cray %>% 
+  filter(Session == "Wetland Error")
+
+#same thing as above but for "Year Errors"
+
+###AFTER FIXING ANY ERRORS THE DATA NEEDS TO BE REENTERED AND THE CODE UP TO THIS POINT NEEDS 
+###TO BE RERUN!!!!!
+
+#when there are no errors the output in the r console will begin with "#A tibble: 0 x 15"
+
+QC_cray %>% 
+  filter(Session == "Year Error")
+
+#same thing as above but for "Month Errors"
+
+###AFTER FIXING ANY ERRORS THE DATA NEEDS TO BE REENTERED AND THE CODE UP TO THIS POINT NEEDS 
+###TO BE RERUN!!!!!
+
+#when there are no errors the output in the r console will begin with "#A tibble: 0 x 15"
+
+
+QC_cray %>% 
+  filter(Session == "Month Error")
+
+#same thing as above but for "Day Errors"
+
+###AFTER FIXING ANY ERRORS THE DATA NEEDS TO BE REENTERED AND THE CODE UP TO THIS POINT NEEDS 
+###TO BE RERUN!!!!!
+
+#when there are no errors the output in the r console will begin with "#A tibble: 0 x 15"
+
+QC_cray %>% 
+  filter(Session == "Day Error")
+
+#same thing as above but for "Throw Errors"
+
+###AFTER FIXING ANY ERRORS THE DATA NEEDS TO BE REENTERED AND THE CODE UP TO THIS POINT NEEDS 
+###TO BE RERUN!!!!!
+
+#when there are no errors the output in the r console will begin with "#A tibble: 0 x 15"
+
+QC_cray %>% 
+  filter(Session == "Throw Error")
+
+#FIX THESE ERRORS BEFORE MOVING FORWARD!!!!
 
 # Annotate ERRORS and changes from the data here:
 # none
 
 #### 2nd QAQC: Checking Species, Length, SEX, FORM and COMMENT
 #note) the QC process will change the data type from numeric to character 
-#which makes sense because throw is categorical type variable
+#which makes sense because throw is a categorical type variable
 
 QC_cray <- cray_length_spring_2022 %>%
   replace_with_na(replace = list(Session = ".",
@@ -156,17 +212,81 @@ QC_cray <- cray_length_spring_2022 %>%
 
 
 
-#check to see if we have any errors. the following six lines of code should
-#not give and "TRUES" in the R console (bottom left screen). If there are "TRUES", 
-#Click on the QC_cray file in the global environment (top right screen) and the data
-#will open. To find the Errors, click on the variable names and it will automatically sort
-#the data for that variable
+#check to see if we have any "Species Errors". the following code should print out any errors in 
+#the R console (bottom left screen). However if there are more than (~10 errors) then it will
+#only print out the first 10. The first line of the output will give the actual number of session errors. 
+#This output will read: "#A tibble: Some Number x 15" where "Some Number is the number of errors found
+#Fix the first 10 printed errors, then re-upload and rerun the previous line of code
+#to find then additional errors not printed
 
-table(QC_cray$Species == "Species Error") 
-table(QC_cray$Sex == "Sex Error") 
-table(QC_cray$Form == "Form Error")
-table(QC_cray$Comments == "Comments Error")
-table(QC_cray$Length== "Length Error")
+#note) some "session errors" may also have errors from other variables.
+#it will be more efficient to fix both before moving on
+
+###AFTER FIXING ANY ERRORS THE DATA NEEDS TO BE REENTERED AND THE CODE UP TO THIS POINT NEEDS 
+###TO BE RERUN!!!!!
+
+#when there are no errors the output in the r console will begin with "#A tibble: 0 x 15"
+
+QC_cray %>% 
+  filter(Session == "Species Error")
+
+#same thing as above but for "Sex Errors"
+
+###AFTER FIXING ANY ERRORS THE DATA NEEDS TO BE REENTERED AND THE CODE UP TO THIS POINT NEEDS 
+###TO BE RERUN!!!!!
+
+#when there are no errors the output in the r console will begin with "#A tibble: 0 x 15"
+
+QC_cray %>% 
+  filter(Session == "Sex Error")
+
+#same thing as above but for "Form Errors"
+
+###AFTER FIXING ANY ERRORS THE DATA NEEDS TO BE REENTERED AND THE CODE UP TO THIS POINT NEEDS 
+###TO BE RERUN!!!!!
+
+#when there are no errors the output in the r console will begin with "#A tibble: 0 x 15"
+
+QC_cray %>% 
+  filter(Session == "Form Error")
+
+#same thing as above but for "Comments Errors"
+
+###AFTER FIXING ANY ERRORS THE DATA NEEDS TO BE REENTERED AND THE CODE UP TO THIS POINT NEEDS 
+###TO BE RERUN!!!!!
+
+#when there are no errors the output in the r console will begin with "#A tibble: 0 x 15"
+
+QC_cray %>% 
+  filter(Session == "Comments Error")
+
+#same thing as above but for "Length Errors"
+
+###AFTER FIXING ANY ERRORS THE DATA NEEDS TO BE REENTERED AND THE CODE UP TO THIS POINT NEEDS 
+###TO BE RERUN!!!!!
+
+#when there are no errors the output in the r console will begin with "#A tibble: 0 x 15"
+
+QC_cray %>% 
+  filter(Session == "Length Error")
+
 
 # Annotate ERRORS and changes from the data here:
 # none
+
+#---------------------------------
+#prepare for data merging####
+#---------------------------------
+
+#remove any comments that refer to a single speciment and not an entire cup (e.g., gravid, partmis, etc. )
+
+QC_cray <- QC_cray %>% 
+  mutate(Comments = if_else(Comments == "ROTCUP"|Comments == "EMPCUP",
+                            true = paste(Comments),
+                            false = NA_character_)) %>% 
+  select(-`Sorted By`,-`Checked By`,-`Entered By`)
+
+table(is.na(QC_cray$Comments)) #no rotcups or empcups in the set means all should be NA (i.e., code spits out all "trues")
+
+QC_cray %>% 
+  write_csv(file = "M:/LILA/LILA QAQC_data/2022/1_IMPORT_CHECK_R/LILA_cray_length_2022.csv")
