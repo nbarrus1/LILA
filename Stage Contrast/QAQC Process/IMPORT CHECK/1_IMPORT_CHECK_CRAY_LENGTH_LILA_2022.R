@@ -42,7 +42,8 @@ library(readxl)
 #readxl allows excel files to be read into R
 
 #### Import Cray file as an xlsx file, update file path every year/season 
-cray_length_spring_2022 <- read_xlsx('M:/LILA/LILA Data Entry/2022/Throw Trapping/Spring/LILA_TT_2022_CRAY_SPRING.xlsx') 
+cray_length_spring_2022 <- read_xlsx('M:/LILA/LILA Data Entry/2022/Throw Trapping/Spring/LILA_TT_2022_CRAY_SPRING.xlsx',
+                                     na = ".") 
 
 #### 1st QAQC: Checking Session, Wetland, Year, Month, Day, Throw for Errors.
 #note) when checking session, the session name will need to be replaced with
@@ -52,17 +53,6 @@ cray_length_spring_2022 <- read_xlsx('M:/LILA/LILA Data Entry/2022/Throw Trappin
 #which makes sense because throw is categorical type variable
 
 QC_cray <- cray_length_spring_2022 %>% 
-  replace_with_na(replace = list(Session = ".",
-                                 Wetland = ".",
-                                 Year = ".",
-                                 Month =".",
-                                 Day=".",
-                                 Throw=".",
-                                 Species = ".",
-                                 Length= ".",
-                                 Sex= ".",
-                                 Form= ".",
-                                 Comments= ".")) %>% 
   mutate(Session = if_else(Session == "Spring 2022",            #session will need to be changed to the current session
                                    true = paste(Session),
                                    false = "Session Error"),
@@ -166,18 +156,7 @@ QC_cray %>%
 #note) the QC process will change the data type from numeric to character 
 #which makes sense because throw is a categorical type variable
 
-QC_cray <- cray_length_spring_2022 %>%
-  replace_with_na(replace = list(Session = ".",
-                                 Wetland = ".",
-                                 Year = ".",
-                                 Month =".",
-                                 Day=".",
-                                 Throw=".",
-                                 Species = ".",
-                                 Length= ".",
-                                 Sex= ".",
-                                 Form= ".",
-                                 Comments= ".")) %>% 
+QC_cray <- QC_cray %>%
   mutate(Species = if_else(Species == "NOCRAY" |
                            Species == "PROFAL" |
                            Species == "PROSPP" |
