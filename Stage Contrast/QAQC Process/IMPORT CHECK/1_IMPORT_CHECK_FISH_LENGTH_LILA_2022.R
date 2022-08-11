@@ -63,7 +63,7 @@ QC_FISH <- fish_length_spring_2022 %>%
                                  Length= ".",
                                  Sex= ".",
                                  Comments= ".")) %>% 
-  mutate(Session = if_else(Session == "Spring 2022",
+  mutate(Session = if_else(Session == "Spring 2022",        #session will need to be changed to the current session
                                    true = paste(Session),
                                    false = "Session Error"),
          Wetland = if_else(Wetland == "M1" |
@@ -72,7 +72,7 @@ QC_FISH <- fish_length_spring_2022 %>%
                            Wetland == "M4",
                                    true = paste(Wetland),
                                    false = "Wetland Error"),
-         Year = if_else(Year == 2022,
+         Year = if_else(Year == 2022,                       #year will need to be changed to the current year
                                    true = paste(Year),
                                    false = "Year Error"),
          Month = if_else(Month > 0 &
@@ -96,7 +96,7 @@ QC_FISH <- fish_length_spring_2022 %>%
 #check to see if we have any "Session Errors". the following code should print out any errors in 
 #the R console (bottom left screen). However if there are more than (~10 errors) then it will
 #only print out the first 10. The first line of the output will give the actual number of session errors. 
-#This output will read: "#A tibble: Some Number x 15" where "Some Number is the number of errors found
+#This output will read: "#A tibble: Some Number x 15" where "Some Number" is the number of errors found
 #Fix the first 10 printed errors, then re-upload and rerun the previous line of code
 #to find then additional errors not printed
 
