@@ -358,3 +358,12 @@ shapiro.test(residuals(model.b)) # P = 0.9558
 qqnorm(model.b$residuals)
 qqline(model.b$residuals)
 anova(model.b)
+
+### Section 5: Exporting Data Frames as .csv files
+### This is when you adjust the below code to export your final data frames to more easily support figure construction
+
+
+### Export mean_slough_catch data for use in Sommer et al. paper.
+
+write.csv(mean_slough_catch, "M:\\LILA\\LILA QAQC_data\\2022\\4_Data_ANALYSIS\\CMD_MEAN_SLOUGH_CATCH.csv", row.names = FALSE)
+

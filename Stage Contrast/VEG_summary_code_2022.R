@@ -229,7 +229,7 @@ mean_macro_stems <- trap_stems %>%
 
 ## Part F:
 ## Calculate the mean catch of wetlands for catch only from sloughs
-trap_catch_sloughs <- trap_catch[trap_catch$Location %in%  c("DS", "SS"),]
+trap_stems_sloughs <- trap_stems[trap_stems$Location %in%  c("DS", "SS"),]
 ## Cumulative, Wateryr, Season, Hydro
 
 trap_stems_sloughs <- trap_stems[trap_stems$Location %in%  c("DS", "SS"),]
@@ -362,13 +362,12 @@ anova(model.b)
 
 
 
+### Section 5: Exporting Data Frames as .csv files
+### This is when you adjust the below code to export your final data frames to more easily support figure construction
 
 
+### Export mean_slough_catch data for use in Sommer et al. paper.
 
-
-
-
-
-
+write.csv(mean_slough_stems, "M:\\LILA\\LILA QAQC_data\\2022\\4_Data_ANALYSIS\\STEMS_MEAN_SLOUGH_DENSITY.csv", row.names = FALSE)
 
 
