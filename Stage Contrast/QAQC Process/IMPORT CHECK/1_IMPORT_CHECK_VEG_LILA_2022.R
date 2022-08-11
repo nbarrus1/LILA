@@ -1,4 +1,4 @@
-#### LILA STAGE CONTRAST EXPERIMENT INVERTEBRATE IMPORT CHECK CODE 
+#### LILA STAGE CONTRAST EXPERIMENT VEGETATION IMPORT CHECK CODE 
 #### Experiment started WET SEASON of 2018 while NJD was at FAU  
 #### Experiment was managed at FAU From WET SEASON 2018 - WET SEASON 2021 
 #### NJD moved to FIU FROM FAU FALL 2021. all aspects of data analysis and storage 
@@ -6,7 +6,7 @@
 #### DATA QA/QC for all other projects in the lab are conducted using SAS, LILA QA/QC 
 #### IS conducted in R. USING THE following code Processes.
 
-### Code Created 8/11/2022 by JS and NB
+### Code Created 8/3/2022-8/9/2022 by JS and NB
 
 #### LILA DATA QA/QC process
 #### STEP 1: IMPORT CHECK  (YOU ARE HERE) 
@@ -31,20 +31,19 @@ rm(list = ls())
 #### BEGIN IMPORT CHECK CODE HERE 
 #### Read in the libraries being used in the code 
 
-#tidyverse includes the packages that you're likely to use in everyday data analyses
-#packages within tidyverse 1.3.0 include: 
-#GGPlot, dplyr, tidyr, readr, purrr, tibble, stringr and forcats
-#readxl allows excel files to be read into R
-#naniar will easily replace (.) with NAs
-
 library(tidyverse)
 library(naniar)
-library(readxl)
 
+# tidyverse includes the packages that you're likely to use in everyday data analyses
+#packages within tidyverse 1.3.0 include: 
+#GGPlot, dplyr, tidyr, readr, purrr, tibble, stringr and forcats
+
+library(readxl)
+#readxl allows excel files to be read into R
 
 #### Import Cray file as an xlsx file, update file path every year/season 
-WWT <- read_xlsx('M:/LILA/LILA Data Entry/2022/Throw Trapping/Spring/LILA_TT_2022_WWT_SPRING.xlsx',
-                        na = ".") 
+VEG <- read_xlsx('M:/LILA/LILA Data Entry/2022/Throw Trapping/Spring/LILA_TT_2022_VEG_SPRING.xlsx',
+                                     na = ".") 
 
 #### 1st QAQC: Checking Session, Wetland, Year, Month, Day, Throw for Errors.
 #note) when checking session, the session name will need to be replaced with
@@ -53,15 +52,15 @@ WWT <- read_xlsx('M:/LILA/LILA Data Entry/2022/Throw Trapping/Spring/LILA_TT_202
 #note 2) the QC process will change the data type from numeric to character 
 #which makes sense because throw is categorical type variable
 
-QC_WWT <- WWT %>% 
+QC_veg <- VEG %>% 
   mutate(Session = if_else(Session == "Spring 2022",        #session will need to be changed to the current session
-                                   true = Session,
+                                   true = paste(Session),
                                    false = "Session Error"),
          Wetland = if_else(Wetland == "M1" |
                            Wetland == "M2" |
                            Wetland == "M3" |
                            Wetland == "M4",
-                                   true = Wetland,
+                                   true = paste(Wetland),
                                    false = "Wetland Error"),
          Year = if_else(Year == 2022,                       #year will need to be changed to the current year
                                    true = paste(Year),
@@ -94,7 +93,7 @@ QC_WWT <- WWT %>%
 
 #when there are no errors the output in the r console will begin with "#A tibble: 0 x 15"
 
-QC_WWT %>% 
+VEG %>% 
   filter(Session == "Session Error") 
 
 #same thing as above but for "Wetland Errors"
@@ -104,7 +103,7 @@ QC_WWT %>%
 
 #when there are no errors the output in the r console will begin with "#A tibble: 0 x 15"
 
-QC_WWT %>% 
+QC_veg %>% 
   filter(Wetland == "Wetland Error")
 
 #same thing as above but for "Year Errors"
@@ -114,7 +113,7 @@ QC_WWT %>%
 
 #when there are no errors the output in the r console will begin with "#A tibble: 0 x 15"
 
-QC_WWT %>% 
+QC_veg%>% 
   filter(Year == "Year Error")
 
 #same thing as above but for "Month Errors"
@@ -125,7 +124,7 @@ QC_WWT %>%
 #when there are no errors the output in the r console will begin with "#A tibble: 0 x 15"
 
 
-QC_WWT %>% 
+QC_veg %>% 
   filter(Month == "Month Error")
 
 #same thing as above but for "Day Errors"
@@ -135,7 +134,7 @@ QC_WWT %>%
 
 #when there are no errors the output in the r console will begin with "#A tibble: 0 x 15"
 
-QC_WWT %>% 
+QC_veg %>% 
   filter(Day == "Day Error")
 
 #same thing as above but for "Throw Errors"
@@ -145,7 +144,7 @@ QC_WWT %>%
 
 #when there are no errors the output in the r console will begin with "#A tibble: 0 x 15"
 
-QC_WWT %>% 
+QC_veg %>% 
   filter(Throw == "Throw Error")
 
 
@@ -158,31 +157,32 @@ QC_WWT %>%
 #note) the QC process will change the data type from numeric to character 
 #which makes sense because throw is a categorical type variable
 
-QC_WWT <- WWT %>%
-  mutate(Category = if_else(Category == "F" |
-                            Category == "S" |
-                            Category == "C" |
-                            Category == "M" |
-                            Category == "OV" |
-                            Category == "OI" ,
-                                  true = Category,
-                                  false = "Category Error"),
-         Comments = as.character(Comments),
-         Comments = if_else(Comments == "NOINVT" |
-                            Comments == "NODATA" |
-                            Comments == "ROTCUP"|
-                            Comments == "PRTMIS"|
-                            Comments == "EMPCUP"|
-                            Comments == "GRAVID",
-                                  true = Comments,
+QC_veg <- VEG %>%
+  mutate(Species = if_else(Species == "CHASPP" |
+                           Species == "ELECEL" |
+                           Species == "ELEELO" |
+                           Species == "ELEINT" |
+                           Species == "NYMODO" |
+                           Species == "PANHEM" |
+                           Species == "PASGEM" |
+                           Species == "PERI" |
+                           Species == "PONCOR" |
+                           Species == "POTILL" |
+                           Species == "SAGLAN" |
+                           Species == "UTRFOL" |
+                           Species == "UTRGIB" |
+                           Species == "UTRPUR"  ,
+                                  true = Species,
+                                  false = "Species Error"),
+         Comments = if_else(Comments == "NODATA",
+                                  true = paste(Comments),
                                   false = "Comments Error"),
-         Comments = if_else(Comments == "EMPCUP"& !is.na(`Wet Weight (g)`),
-                            true = "Comments or Wet Weight Error",
-                            false = Comments),
-         `Wet Weight (g)` = as.numeric(`Wet Weight (g)`),
-         `Wet Weight (g)` = if_else(`Wet Weight (g)` >= 0 & `Wet Weight (g)` < 30,
-                          true = paste(`Wet Weight (g)`),
-                          false = "Wet Weight Error"))
+         Density = as.numeric(Density),
+         Density = if_else(Density >= 0 & Density < 10000,
+                          true = paste(Density),
+                          false = "Density Error"))
+
+
 
 #check to see if we have any "Species Errors". the following code should print out any errors in 
 #the R console (bottom left screen). However if there are more than (~10 errors) then it will
@@ -199,8 +199,8 @@ QC_WWT <- WWT %>%
 
 #when there are no errors the output in the r console will begin with "#A tibble: 0 x 15"
 
-QC_WWT %>% 
-  filter(Category == "Category Error")
+QC_veg %>% 
+  filter(Species == "Species Error")
 
 #same thing as above but for "Comments Errors"
 
@@ -209,8 +209,8 @@ QC_WWT %>%
 
 #when there are no errors the output in the r console will begin with "#A tibble: 0 x 15"
 
-QC_WWT %>% 
-  filter(Comments == "Comments Error"| Comments == "Comments or Wet Weight Error")
+QC_veg %>% 
+  filter(Comments == "Comments Error")
 
 #same thing as above but for "Length Errors"
 
@@ -219,8 +219,8 @@ QC_WWT %>%
 
 #when there are no errors the output in the r console will begin with "#A tibble: 0 x 15"
 
-QC_WWT %>% 
-  filter(`Wet Weight (g)` == "Wet Weight Error" )
+QC_veg %>% 
+  filter(Density == "Density Error")
 
 
 # Annotate ERRORS and changes from the data here:
@@ -232,15 +232,13 @@ QC_WWT %>%
 
 #remove any comments that refer to a single speciment and not an entire cup (e.g., gravid, partmis, etc. )
 
-QC_WWT <- WWT %>% 
+QC_veg <- QC_veg %>% 
   mutate(Comments = if_else(Comments == "ROTCUP"|Comments == "EMPCUP",
                             true = paste(Comments),
                             false = NA_character_)) %>% 
-  select(-`Sorted By`,-`Checked By`,-`Entered By`) %>% 
-  mutate(`Wet Weight (g)` = as.numeric(`Wet Weight (g)`),
-         `Wet Weight (g)` = replace_na(`Wet Weight (g)`,0)) 
+  select(-`Checked By`,-`Entered By`)
 
-table(is.na(QC_WWT$Comments)) #no rotcups or empcups in the set means all should be NA (i.e., code spits out all "trues")
+table(is.na(QC_veg$Comments)) #no rotcups or empcups in the set means all should be NA (i.e., code spits out all "trues")
 
-QC_WWT %>% 
-  write_csv(file = "M:/LILA/LILA QAQC_data/2022/1_IMPORT_CHECK_R/LILA_wwt_2022.csv")
+QC_veg %>% 
+  write_csv(file = "M:/LILA/LILA QAQC_data/2022/1_IMPORT_CHECK_R/LILA_veg_2022.csv")

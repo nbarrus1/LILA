@@ -1,4 +1,4 @@
-#### LILA STAGE CONTRAST EXPERIMENT INVERTEBRATE IMPORT CHECK CODE 
+#### LILA STAGE CONTRAST EXPERIMENT MERGE CHECK CODE 
 #### Experiment started WET SEASON of 2018 while NJD was at FAU  
 #### Experiment was managed at FAU From WET SEASON 2018 - WET SEASON 2021 
 #### NJD moved to FIU FROM FAU FALL 2021. all aspects of data analysis and storage 
@@ -9,16 +9,17 @@
 ### Code Created 8/11/2022 by JS and NB
 
 #### LILA DATA QA/QC process
-#### STEP 1: IMPORT CHECK  (YOU ARE HERE) 
-#### STEP 2: MERGE CHECK 
+#### STEP 1: IMPORT CHECK  
+#### STEP 2: MERGE CHECK (YOU ARE HERE) 
 #### STEP 3: DATA MERGE 
 
-#---------------------------------------------------------------------------------------
-#########################*THIS PROGRAM RUNS BEFORE THE FISH FILE#########################
-#--------------------------------------------------------------------------------------
+#This program merges all the throwtrapping data together to check for consistency amoung spatial
+#and temporal components. It also will find discrepancies between the wet weight and the animal
+#data sets
+
 
 # TO USE THIS PROGRAM:
-  # REPLACE ________ COMMENTS WITH RELAVENT DATES AND FILE NAMES FOR THE CURRENT DATA. 
+# REPLACE ________ COMMENTS WITH RELAVENT DATES AND FILE NAMES FOR THE CURRENT DATA. 
 # RUN THE PROGRAM ONE STEP AT A TIME, NOT ALL AT ONCE
 # READ COMMENTS AS YOU GO AND FOLLOW DIRECTIONS PROVIDED 
 # WHEN QAQC IS COMPLETED, SAVE THE PROGRAM AS A NEW FILE SHOWING THE CURRENT YEAR
@@ -38,121 +39,42 @@ rm(list = ls())
 #naniar will easily replace (.) with NAs
 
 library(tidyverse)
-library(naniar)
-library(readxl)
 
+#### Import all the QAQC files from the first round of the process
 
-#### Import Cray file as an xlsx file, update file path every year/season 
-WWT <- read_xlsx('M:/LILA/LILA Data Entry/2022/Throw Trapping/Spring/LILA_TT_2022_WWT_SPRING.xlsx',
-                        na = ".") 
+QC_cray <- read_csv('M:/LILA/LILA QAQC_data/2022/1_IMPORT_CHECK_R/LILA_cray_length_2022.csv',
+                   na = "NA") 
+QC_fish <- read_csv('M:/LILA/LILA QAQC_data/2022/1_IMPORT_CHECK_R/LILA_fish_length_2022.csv',
+                   na = "NA") 
+QC_invt <- read_csv('M:/LILA/LILA QAQC_data/2022/1_IMPORT_CHECK_R/LILA_invt_count_2022.csv',
+                   na = "NA") 
+QC_phys <- read_csv('M:/LILA/LILA QAQC_data/2022/1_IMPORT_CHECK_R/LILA_phys_2022.csv',
+                   na = "NA") 
+QC_veg <- read_csv('M:/LILA/LILA QAQC_data/2022/1_IMPORT_CHECK_R/LILA_veg_2022.csv',
+                    na = "NA") 
+QC_wwt <- read_csv('M:/LILA/LILA QAQC_data/2022/1_IMPORT_CHECK_R/LILA_wwt_2022.csv',
+                        na = "NA") 
 
-#### 1st QAQC: Checking Session, Wetland, Year, Month, Day, Throw for Errors.
-#note) when checking session, the session name will need to be replaced with
-#the session that you're working with. Also) spaces and capitalization 
-#matter in this name
-#note 2) the QC process will change the data type from numeric to character 
-#which makes sense because throw is categorical type variable
+#### 1st QAQC: Merge all the data together to create a file that documents where a "mismatch" has occurred.
+#the mismatch will indicate where different spatial or temporal values
 
-QC_WWT <- WWT %>% 
-  mutate(Session = if_else(Session == "Spring 2022",        #session will need to be changed to the current session
-                                   true = Session,
-                                   false = "Session Error"),
-         Wetland = if_else(Wetland == "M1" |
-                           Wetland == "M2" |
-                           Wetland == "M3" |
-                           Wetland == "M4",
-                                   true = Wetland,
-                                   false = "Wetland Error"),
-         Year = if_else(Year == 2022,                       #year will need to be changed to the current year
-                                   true = paste(Year),
-                                   false = "Year Error"),
-         Month = if_else(Month > 0 &
-                         Month < 13, 
-                                   true = paste(Month),
-                                   false = "Month Error"),
-         Day = if_else(Day >0 &
-                       Day <32, 
-                                   true = paste(Day),
-                                   false = "Day Error"),
-         Throw = if_else(Throw >0 & 
-                         Throw<15,
-                                  true = paste(Throw),
-                                  false = "Throw Error"))
+#check the QC_fish file by the QC_cray file
+anti_join(QC_fish, QC_cray, by = c("Session","Year","Month","Day","Wetland","Throw"))
 
-#check to see if we have any "Session Errors". the following code should print out any errors in 
-#the R console (bottom left screen). However if there are more than (~10 errors) then it will
-#only print out the first 10. The first line of the output will give the actual number of session errors. 
-#This output will read: "#A tibble: Some Number x 15" where "Some Number" is the number of errors found
-#Fix the first 10 printed errors, then re-upload and rerun the previous line of code
-#to find then additional errors not printed
+#check the QC_fish file by the QC_invt file
 
-#note) some "session errors" may also have errors from other variables.
-#it will be more efficient to fix both before moving on
+anti_join(QC_fish, QC_invt, by = c("Session","Year","Month","Day","Wetland","Throw"))
 
-###AFTER FIXING ANY ERRORS THE DATA NEEDS TO BE REENTERED AND THE CODE UP TO THIS POINT NEEDS 
-###TO BE RERUN!!!!!
+#check the QC_fish file by the QC_invt file
 
-#when there are no errors the output in the r console will begin with "#A tibble: 0 x 15"
+anti_join(QC_fish, QC_veg, by = c("Session","Year","Month","Day","Wetland","Throw"))
 
-QC_WWT %>% 
-  filter(Session == "Session Error") 
-
-#same thing as above but for "Wetland Errors"
-
-###AFTER FIXING ANY ERRORS THE DATA NEEDS TO BE REENTERED AND THE CODE UP TO THIS POINT NEEDS 
-###TO BE RERUN!!!!!
-
-#when there are no errors the output in the r console will begin with "#A tibble: 0 x 15"
-
-QC_WWT %>% 
-  filter(Wetland == "Wetland Error")
-
-#same thing as above but for "Year Errors"
-
-###AFTER FIXING ANY ERRORS THE DATA NEEDS TO BE REENTERED AND THE CODE UP TO THIS POINT NEEDS 
-###TO BE RERUN!!!!!
-
-#when there are no errors the output in the r console will begin with "#A tibble: 0 x 15"
-
-QC_WWT %>% 
-  filter(Year == "Year Error")
-
-#same thing as above but for "Month Errors"
-
-###AFTER FIXING ANY ERRORS THE DATA NEEDS TO BE REENTERED AND THE CODE UP TO THIS POINT NEEDS 
-###TO BE RERUN!!!!!
-
-#when there are no errors the output in the r console will begin with "#A tibble: 0 x 15"
-
-
-QC_WWT %>% 
-  filter(Month == "Month Error")
-
-#same thing as above but for "Day Errors"
-
-###AFTER FIXING ANY ERRORS THE DATA NEEDS TO BE REENTERED AND THE CODE UP TO THIS POINT NEEDS 
-###TO BE RERUN!!!!!
-
-#when there are no errors the output in the r console will begin with "#A tibble: 0 x 15"
-
-QC_WWT %>% 
-  filter(Day == "Day Error")
-
-#same thing as above but for "Throw Errors"
-
-###AFTER FIXING ANY ERRORS THE DATA NEEDS TO BE REENTERED AND THE CODE UP TO THIS POINT NEEDS 
-###TO BE RERUN!!!!!
-
-#when there are no errors the output in the r console will begin with "#A tibble: 0 x 15"
-
-QC_WWT %>% 
-  filter(Throw == "Throw Error")
-
-
-#FIX THESE ERRORS BEFORE MOVING FORWARD!!!!
+#check the QC_fish file by the QC_invt file
+  
+anti_join(QC_fish, QC_wwt, by = c("Session","Year","Month","Day","Wetland","Throw"))
 
 # Annotate ERRORS and changes from the data here:
-# none
+# QCwwt had a the wrong day (15 was changed to 16)
 
 #### 2nd QAQC: Checking Species, Length, SEX, FORM and COMMENT
 #note) the QC process will change the data type from numeric to character 
