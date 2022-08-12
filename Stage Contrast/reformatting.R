@@ -44,7 +44,8 @@ FISH_CRAY_DATA <- FISH_CRAY_SPRING_2019 %>%
 table(FISH_CRAY_DATA$Session,FISH_CRAY_DATA$`Species Code`)
 
 #load in the invert and physical data by specifying the sheet
-INVT_PHYS <- read_excel(path = "M:/LILA/Stage Contrast Study/Throw Trap Data/LILA_Stage_Contrast_TTdata_WS2018-WS2021.xlsx", sheet = 2)%>% 
+INVT_PHYS <- read_excel(path = "M:/LILA/Stage Contrast Study/Throw Trap Data/LILA_Stage_Contrast_TTdata_WS2018-WS2021.xlsx", sheet = 2,
+                        na = "NA")%>% 
   mutate(Macrocosm = if_else(Macrocosm == 1,
                              true = "M1",
                              false = if_else(Macrocosm == 2,
@@ -52,10 +53,11 @@ INVT_PHYS <- read_excel(path = "M:/LILA/Stage Contrast Study/Throw Trap Data/LIL
                                              false = if_else(Macrocosm == 3,
                                                              true = "M3",
                                                              false = "M4"))))%>% 
-  mutate(date_time = mdy_hm(date_time))
+  mutate(date_time = mdy_hm(date_time)) %>% 
+  drop_na(Session)
 
 #get the throw trap dates for cray and fish from the physical
-COD <- INVT_PHYS_SUMMER_2018 %>% 
+COD <- INVT_PHYS %>% 
   select(Session, Macrocosm,`Throw Trap`, Date) 
 
 #give the initials for those who QA/QC the data
@@ -364,7 +366,7 @@ VEG <- INVT_PHYS %>%
          PONCOR = `Pontederia cordata`,
          RHYSPP = `Rhynchospora spp`,
          CRIAME = `Crinum americanum`,
-         SAGSPP = `Sagittaria spp`,
+         SAGLAN = `Sagittaria spp`,
          POTILL_stem = `Potamegaton spp.`,
          GRASS = Grass,
          CLAJAM = `Cladium jamaicense`,
@@ -372,6 +374,7 @@ VEG <- INVT_PHYS %>%
          TYPSPP = `Typha spp`,
          URELOB = `Urena lobata`,
          UNKDIC = `Unknown Dicot`,
+         PERI = `peri_%`,
          Throw = `Throw Trap`,
          Wetland = Macrocosm) %>% 
   mutate(Year = year(date_time),
@@ -379,9 +382,10 @@ VEG <- INVT_PHYS %>%
          Day = day(date_time),
          Comments = ".") %>% 
   select(Session, Year,Month,Day,Wetland, Throw, UTRPUR,UTRFOL,BACCAR,POTILL,CHASPP,ELEELO,ELECEL,ELESPP,
-         GRASS,NYMODO,NUPADV,PONCOR,RHYSPP,POTILL_stem,CLAJAM,TYPSPP,URELOB,UNKDIC,PANHEM,PASGEM,Comments) %>% 
+         GRASS,NYMODO,NUPADV,PONCOR,RHYSPP,CRIAME,SAGLAN,POTILL_stem,CLAJAM,TYPSPP,URELOB,UNKDIC,PANHEM,PASGEM,
+         PERI,Comments) %>% 
   gather(UTRPUR,UTRFOL,BACCAR,POTILL,CHASPP,ELEELO,ELECEL,ELESPP,
-         GRASS,NYMODO,NUPADV,PONCOR,RHYSPP,POTILL_stem,CLAJAM,TYPSPP,URELOB,UNKDIC,PANHEM,PASGEM,
+         GRASS,NYMODO,NUPADV,PONCOR,RHYSPP,CRIAME,SAGLAN,POTILL_stem,CLAJAM,TYPSPP,URELOB,UNKDIC,PANHEM,PASGEM,PERI,
          key ="Species",value ="Density") %>% 
   mutate(Species = if_else(Species == "GRASS" | Species == "PANHEM" | Species == "PASGEM",
                            true = "GRASS",
@@ -401,8 +405,8 @@ VEG <- INVT_PHYS %>%
 #note cont.: and the file name
 
 VEG %>%
-  filter(Session == "Summer 2018") %>% 
-  write_csv(file = "M:/LILA/LILA Data Entry/2018/LILA_TT_2018_VEG_SUMMER.csv")
+  filter(Session == "Spring 2019") %>% 
+  write_csv(file = "M:/LILA/LILA Data Entry/2019/Spring/LILA_TT_2019_VEG_SPRING.csv")
 
 #--------------------------------------------------
 #####Reformat the Invertebrate Data#####

@@ -1,6 +1,8 @@
 ### This code summarized throw trap data from LILA during the wet-season-stage contrast experiment ###
 ### that began in the wet season of 2018. ###
 
+rm(list = ls())
+
 ### data management help https://urldefense.com/v3/__https://bouchat.github.io/IntroDataMgmt20Jan.html*introduction_to_r__;Iw!!FjuHKAHQs5udqho!KplAcfmVaxfmgZi7JQBeSpv1KwYTV3WwZN41DByxf9OmOuEe-o-6GPBYEgzFpLxjqU-BRDeib2BRKEZDpTIJ$  
 ## data management help: Base R cheat sheet.
 
@@ -184,8 +186,28 @@ trap_stems<- stems %>%
             NUPADV = sum(NUPADVden), NYMODO = sum(NYMODOden), PONCOR = sum(PONCORden), RHYSPP = sum(RHYSPPden), 
             SAGLAN = sum(SAGLANden), TYPSPP = sum(TYPSPPden), UNKDIC = sum(UNKDICden), URELOB = sum(URELOBden))
 
-
 ## Part B:
+## Calculate the total stems per wetland by:
+## Cumulative, Wateryr, Season, Wetland, Hydro
+
+sum_macro_stems <- trap_stems %>% 
+  group_by(Cumulative, Wateryr, Season, Wetland, Hydro) %>% 
+  summarize(STEMS = sum(STEMS), CLAJAM = sum(CLAJAM), ELECEL = sum(ELECEL), ELEELO = sum(ELEELO),
+            ELEINT = sum(ELEINT), ELESPP = sum(ELESPP), GRASS = sum(GRASS), NUPADV = sum(NUPADV), 
+            NYMODO = sum(NYMODO), PONCOR = sum(PONCOR), RHYSPP = sum(RHYSPP), SAGLAN = sum(SAGLAN), 
+            TYPSPP = sum(TYPSPP), UNKDIC = sum(UNKDIC), URELOB = sum(URELOB))
+## Part C:
+## Calculate the mean stems per wetland by:
+## Cumulative, Wateryr, Season, Wetland, Hydro
+
+mean_macro_stems <- trap_stems %>% 
+  group_by(Cumulative, Wateryr, Season, Wetland, Hydro) %>%
+  summarize(STEMS = mean(STEMS), CLAJAM = mean(CLAJAM), ELECEL = mean(ELECEL), ELEELO = mean(ELEELO),
+            ELEINT = mean(ELEINT), ELESPP = mean(ELESPP), GRASS = mean(GRASS), NUPADV = mean(NUPADV), 
+            NYMODO = mean(NYMODO), PONCOR = mean(PONCOR), RHYSPP = mean(RHYSPP), SAGLAN = mean(SAGLAN), 
+            TYPSPP = mean(TYPSPP), UNKDIC = mean(UNKDIC), URELOB = mean(URELOB))
+
+## Part D:
 ## Calculate the total stems per habitat by Cumulative, Wateryr, Season, Wetland, Hydro)
 ## DS catch = sum of 10 TT (1-10), SS catch - sum of 4 TT (11-14), and CR catch = sum of 8 TT (15-22)
 
@@ -196,8 +218,8 @@ sum_hab_stems <- trap_stems %>%
             NYMODO = sum(NYMODO), PONCOR = sum(PONCOR), RHYSPP = sum(RHYSPP), SAGLAN = sum(SAGLAN), 
             TYPSPP = sum(TYPSPP), UNKDIC = sum(UNKDIC), URELOB = sum(URELOB))
 
-## Part C:
-## Calculate the mean catch per habitat (by Cumulative, Wateryr, Season, Wetland, Hydro)
+## Part E:
+## Calculate the mean stems per habitat (by Cumulative, Wateryr, Season, Wetland, Hydro)
 ## DS catch = mean of 10 TT, SS catch = mean pf 4 TT, and CR catch = mean of 8 throw traps
 
 mean_hab_stems <- trap_stems %>% 
@@ -207,33 +229,12 @@ mean_hab_stems <- trap_stems %>%
             NYMODO = mean(NYMODO), PONCOR = mean(PONCOR), RHYSPP = mean(RHYSPP), SAGLAN = mean(SAGLAN), 
             TYPSPP = mean(TYPSPP), UNKDIC = mean(UNKDIC), URELOB = mean(URELOB))
 
-## Part D:
-## Calculate the total catch per wetland by:
-## Cumulative, Wateryr, Season, Hydro
-
-sum_macro_stems <- trap_stems %>% 
-  group_by(Cumulative, Wateryr, Season, Wetland, Hydro) %>% 
-  summarize(STEMS = sum(STEMS), CLAJAM = sum(CLAJAM), ELECEL = sum(ELECEL), ELEELO = sum(ELEELO),
-            ELEINT = sum(ELEINT), ELESPP = sum(ELESPP), GRASS = sum(GRASS), NUPADV = sum(NUPADV), 
-            NYMODO = sum(NYMODO), PONCOR = sum(PONCOR), RHYSPP = sum(RHYSPP), SAGLAN = sum(SAGLAN), 
-            TYPSPP = sum(TYPSPP), UNKDIC = sum(UNKDIC), URELOB = sum(URELOB))
-## Part E:
-## Calculate the mean catch per wetland by:
-
-mean_macro_stems <- trap_stems %>% 
-  group_by(Cumulative, Wateryr, Season, Wetland, Hydro) %>%
-  summarize(STEMS = mean(STEMS), CLAJAM = mean(CLAJAM), ELECEL = mean(ELECEL), ELEELO = mean(ELEELO),
-            ELEINT = mean(ELEINT), ELESPP = mean(ELESPP), GRASS = mean(GRASS), NUPADV = mean(NUPADV), 
-            NYMODO = mean(NYMODO), PONCOR = mean(PONCOR), RHYSPP = mean(RHYSPP), SAGLAN = mean(SAGLAN), 
-            TYPSPP = mean(TYPSPP), UNKDIC = mean(UNKDIC), URELOB = mean(URELOB))
-
 ## Part F:
 ## Calculate the mean catch of wetlands for catch only from sloughs
-trap_stems_sloughs <- trap_stems[trap_stems$Location %in%  c("DS", "SS"),]
 ## Cumulative, Wateryr, Season, Hydro
+mean_hab_stems_sloughs <- mean_hab_stems[mean_hab_stems$Location %in%  c("DS", "SS"),]
 
-trap_stems_sloughs <- trap_stems[trap_stems$Location %in%  c("DS", "SS"),]
-mean_slough_stems <- trap_stems_sloughs %>% 
+mean_slough_stems <- mean_hab_stems_sloughs %>% 
   group_by(Cumulative, Wateryr, Season, Wetland, Hydro) %>% 
   summarize(STEMS = mean(STEMS), CLAJAM = mean(CLAJAM), ELECEL = mean(ELECEL), ELEELO = mean(ELEELO),
             ELEINT = mean(ELEINT), ELESPP = mean(ELESPP), GRASS = mean(GRASS), NUPADV = mean(NUPADV), 
@@ -263,13 +264,13 @@ stemden_model_season_i <- lme(STEMS ~ Hydro + Season + Hydro*Season,
 ACF(stemden_model_wateryr_i)
 # Store ACF outputs below, add lines as necessary
 # only store values > 0 or < 1
-ACF_A_1 <- -0.35512341
-ACF_A_2 <- -0.10093968
-ACF_A_3 <-  0.19634190
-ACF_A_4 <- -0.25875257
-ACF_A_5 <- -0.03920433
-ACF_A_6 <-  0.47317299
-ACF_A_7 <- -0.24910328
+ACF_A_1 <- -0.376963853
+ACF_A_2 <- -0.002563214
+ACF_A_3 <-  0.005414074
+ACF_A_4 <- -0.180127549
+ACF_A_5 <-  0.046391107
+ACF_A_6 <-  0.648897623
+ACF_A_7 <- -0.481595971
 
 # Run ACF for season count model
 ACF(stemden_model_season_i)
@@ -297,11 +298,11 @@ model.a <- lme(STEMS ~ factor(Hydro)*ordered(Wateryr),
 
 summary(model.a)
 anova(model.a)
-#                                  numDF denDF   F-value p-value
-#(Intercept)                           1    22 124.12943  <.0001
-#factor(Hydro)                         1     2  10.94820  0.0805
-#ordered(Wateryr)                      3    22  10.55494  0.0002
-#factor(Hydro):ordered(Wateryr)        3    22   1.26219  0.3117
+#                                numDF denDF   F-value p-value
+# (Intercept)                        1    22 109.95271  <.0001
+# factor(Hydro)                      1     2   5.62630  0.1411
+# ordered(Wateryr)                   3    22  13.84942  <.0001
+# factor(Hydro):ordered(Wateryr)     3    22   2.54784  0.0820
 
 # Check for violations of assumptions
 # Assumption Testing:
