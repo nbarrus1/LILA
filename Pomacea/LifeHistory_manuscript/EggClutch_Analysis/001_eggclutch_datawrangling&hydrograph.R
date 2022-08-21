@@ -24,7 +24,7 @@ library(geosphere)       #package to find day lengths (photoperiod)
 
 ####egg clutch data
 
-LILA.egg.counts <- read_excel("M:/LILA/Pomacea/FAU/Barrus_Data/EggMass/EggMassData_v1.12_nb.xlsx", sheet = 2) %>% 
+LILA.egg.counts <- read_excel("C:/Users/Nathan Barrus/Documents/FAU/Masters Thesis/DornLabMeeting/EggMass/EggMassData_v1.12_nb.xlsx", sheet = 2) %>% 
   mutate(year = year(Date),
          month = months(Date),
          dayofyear = as.numeric(format(Date, "%j"))) 
@@ -38,7 +38,7 @@ transectarea <- tibble(Cell = c("M4","M4","M4","M4","M3","M3","M3","M3","M2","M2
 
 ####depth data
 
-depth.raw <- read_excel("M:/LILA/Pomacea/FAU/Barrus_Data/EggMass/LILA_EnvironmentalData_060118-081021.xlsx", sheet = 2, skip = 6) %>% 
+depth.raw <- read_excel("C:/Users/Nathan Barrus/Documents/FAU/Masters Thesis/DornLabMeeting/EggMass/LILA_EnvironmentalData_060118-081021.xlsx", sheet = 2, skip = 6) %>% 
   rename(Cell = Station,
          Date = 'Daily Date',
          Depth.ft = 'Data Value') 
@@ -59,14 +59,14 @@ depth.raw <- depth.raw %>%
                              false = "constrained"))
 #####Temperature data
 
-temp.raw <- read_excel("M:/LILA/Pomacea/FAU/Barrus_Data/EggMass/LILA_EnvironmentalData_060118-081021.xlsx", sheet = 4,
+temp.raw <- read_excel("C:/Users/Nathan Barrus/Documents/FAU/Masters Thesis/DornLabMeeting/EggMass/LILA_EnvironmentalData_060118-081021.xlsx", sheet = 4,
                        skip = 3) %>% 
   rename(Date = 'Daily Date',
          Temp.c = 'Data Value') 
 
 ##density data from Throw Trapping
 
-TTdata <- read_excel("M:/LILA/Pomacea/FAU/Barrus_Data/EggMass/LILA_Stage_Contrast_TTdata_WS2018-DS2021.xlsx", sheet = 4)
+TTdata <- read_excel("C:/Users/Nathan Barrus/Documents/FAU/Masters Thesis/DornLabMeeting/EggMass/LILA_Stage_Contrast_TTdata_WS2018-DS2021.xlsx", sheet = 4)
 
 
 #--------------------------------------
@@ -196,7 +196,7 @@ depth.summ <- depth.summ %>%
   mutate(week.date = ceiling_date(Date,
                                   unit = "week",
                                   week_start  = getOption("lubridate.week.start", 1))) %>% 
-  group_by(week.date, Cell) %>% 
+  group_by(Cell,week.date) %>% 
   summarise(ave.depth.cm = mean(depth.cm, na.rm = T),
             sd.depth.cm = sd(depth.cm, na.rm = T))
 
@@ -275,12 +275,6 @@ change <- tibble(depth.change = c(diff(M1.depth$depth.cm, lag = 20),
 ###check it
 hist(change$depth.change)      #looks pretty good
 
-####Get seasons####
-
-seasons <- depth.raw %>% 
-  filter(Date %in% summ.LILA.egg$week.date) %>% 
-  dplyr::select(Cell, Date, Season) %>% 
-  rename(week.date = Date)
 
 ####Get Apple Snail Densities####
 
@@ -334,6 +328,14 @@ write_csv(summ.TTdata, file = "SuppleTable4.csv")
 summ.LILA.egg <- summ.LILA.egg %>% 
   mutate(photoperiod = daylength(lat = 26.4993,
                                  doy = Date))
+
+####Get seasons####
+
+seasons <- depth.raw %>% 
+  filter(Date %in% depth.summ$week.date) %>% 
+  dplyr::select(Cell, Date, Season) %>% 
+  rename(week.date = Date)
+
 
 #-----------------------------------
 ####merge the covariates to the LILA counts #####
