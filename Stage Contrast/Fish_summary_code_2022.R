@@ -8,20 +8,23 @@ library(tidyverse)
 library(readxl)
 library(nlme)
 library(car)
+library(emmeans)
+library(ggplot2)
+
 # tidyverse includes the packages that you're likely to use in everyday data analyses
 #packages within tidyverse 1.3.0 include: GGPlot, dplyr, tidyr, readr, purrr, tibble, stringr and forcats
 
 ### Section one:
 # Load in raw fish  data from throw traps over multiple macrocosms at LILA and multiple seasons
 
-Fish_SU_2018 <- read_csv("M:/LILA/LILA Data Entry/2018/LILA_TT_2018_FISH_SUMMER.csv")
-Fish_SP_2019 <- read_csv("M:/LILA/LILA Data Entry/2019/Spring/LILA_TT_2019_FISH_SPRING.csv")
-Fish_SU_2019 <- read_csv("M:/LILA/LILA Data Entry/2019/Summer/LILA_TT_2019_FISH_SUMMER.csv")
-Fish_SP_2020 <- read_csv("M:/LILA/LILA Data Entry/2020/Spring/LILA_TT_2020_FISH_SPRING.csv")
-Fish_SU_2020 <- read_csv("M:/LILA/LILA Data Entry/2020/Summer/LILA_TT_2020_FISH_SUMMER.csv")
-Fish_SP_2021 <- read_csv("M:/LILA/LILA Data Entry/2021/Spring/LILA_TT_2021_FISH_SPRING.csv")
-Fish_SU_2021 <- read_csv("M:/LILA/LILA Data Entry/2021/Summer/LILA_TT_2021_FISH_SUMMER.csv")
-Fish_SP_2022 <- read_excel("M:/LILA/LILA Data Entry/2022/Throw Trapping/Spring/LILA_TT_2022_FISH_SPRING.xlsx")
+Fish_SU_2018 <- read_csv("M:/LILA/LILA Data Entry/2018/LILA_TT_2018_FISH_SUMMER.csv", na = ".")
+Fish_SP_2019 <- read_csv("M:/LILA/LILA Data Entry/2019/Throw Trapping/Spring/LILA_TT_2019_FISH_SPRING.csv", na = ".")
+Fish_SU_2019 <- read_csv("M:/LILA/LILA Data Entry/2019/Throw Trapping/Summer/LILA_TT_2019_FISH_SUMMER.csv", na = ".")
+Fish_SP_2020 <- read_csv("M:/LILA/LILA Data Entry/2020/Throw Trapping/Spring/LILA_TT_2020_FISH_SPRING.csv", na = ".")
+Fish_SU_2020 <- read_csv("M:/LILA/LILA Data Entry/2020/Throw Trapping/Summer/LILA_TT_2020_FISH_SUMMER.csv", na = ".")
+Fish_SP_2021 <- read_csv("M:/LILA/LILA Data Entry/2021/Throw Trapping/Spring/LILA_TT_2021_FISH_SPRING.csv", na = ".")
+Fish_SU_2021 <- read_csv("M:/LILA/LILA Data Entry/2021/Throw Trapping/Summer/LILA_TT_2021_FISH_SUMMER.csv", na = ".")
+Fish_SP_2022 <- read_excel("M:/LILA/LILA Data Entry/2022/Throw Trapping/Spring/LILA_TT_2022_FISH_SPRING.xlsx", na = ".")
 
 # Raw Fish data should have 15 variables: Session, Year, Month, Day, Wetland, Throw, Species,
 #     Length, Sex, Form, Comments, Sorted By, Entered By, Checked By
@@ -129,7 +132,7 @@ is.character(catch$Species)
 is.numeric(catch$Length)
 
 # Length is not registering as a numeric so it must be converted to a numeric
-catch$Length <- as.numeric(catch$Length)
+catch$Length <- as.numeric(catch$Length, na.action = 0)
 
 # Section One: Fish Counts
 # First create counts of Fish, using f(x) dplyr::if_else()
@@ -416,7 +419,7 @@ ACF_B_7 <-  NA
 
 
 # Step 3:
-# Run rmANOVAs to determine if hydro-pattern treatment has had an effect on crayfish
+# Run rmANOVAs to determine if hydro-pattern treatment has had an effect on small marsh fish
 
 # Part 1: Model.a
 # model.a.1 examines cumulative and Hydro effect on crayfish counts
@@ -432,8 +435,8 @@ anova(model.a)
 #                                  numDF denDF   F-value p-value
 #(Intercept)                           1    22 157.27923  <.0001
 #factor(Hydro)                         1     2   5.09382  0.1526
-#ordered(Wateryr)                   3    22  10.54726  0.0002
-#factor(Hydro):ordered(Wateryr)     3    22   1.51015  0.2397
+#ordered(Wateryr)                      3    22  10.54726  0.0002
+#factor(Hydro):ordered(Wateryr)        3    22   1.51015  0.2397
 
 # Check for violations of assumptions
 # Assumption Testing:
@@ -492,7 +495,6 @@ qqnorm(model.b$residuals)
 qqline(model.b$residuals)
 anova(model.b)
 
-#########################################################
 
 
 ### Section 5: Exporting Data Frames as .csv files
@@ -502,3 +504,9 @@ anova(model.b)
 ### Export mean_slough_catch data for use in Sommer et al. paper.
 
 write.csv(mean_slough_catch, "M:\\LILA\\LILA QAQC_data\\2022\\4_Data_ANALYSIS\\SMFD_MEAN_SLOUGH_CATCH.csv", row.names =  FALSE)
+
+
+
+
+
+
