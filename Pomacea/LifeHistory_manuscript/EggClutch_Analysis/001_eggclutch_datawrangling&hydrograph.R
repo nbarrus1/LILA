@@ -24,7 +24,7 @@ library(geosphere)       #package to find day lengths (photoperiod)
 
 ####egg clutch data
 
-LILA.egg.counts <- read_excel("C:/Users/Nathan Barrus/Documents/FAU/Masters Thesis/DornLabMeeting/EggMass/EggMassData_v1.12_nb.xlsx", sheet = 2) %>% 
+LILA.egg.counts <- read_excel("M:/LILA/Pomacea/FAU/Barrus_Data/EggMass/EggMassData_v1.12_nb.xlsx", sheet = 2) %>% 
   mutate(year = year(Date),
          month = months(Date),
          dayofyear = as.numeric(format(Date, "%j"))) 
@@ -38,7 +38,7 @@ transectarea <- tibble(Cell = c("M4","M4","M4","M4","M3","M3","M3","M3","M2","M2
 
 ####depth data
 
-depth.raw <- read_excel("C:/Users/Nathan Barrus/Documents/FAU/Masters Thesis/DornLabMeeting/EggMass/LILA_EnvironmentalData_060118-081021.xlsx", sheet = 2, skip = 6) %>% 
+depth.raw <- read_excel("M:/LILA/Pomacea/FAU/Barrus_Data/EggMass/LILA_EnvironmentalData_060118-081021.xlsx", sheet = 2, skip = 6) %>% 
   rename(Cell = Station,
          Date = 'Daily Date',
          Depth.ft = 'Data Value') 
@@ -59,14 +59,14 @@ depth.raw <- depth.raw %>%
                              false = "constrained"))
 #####Temperature data
 
-temp.raw <- read_excel("C:/Users/Nathan Barrus/Documents/FAU/Masters Thesis/DornLabMeeting/EggMass/LILA_EnvironmentalData_060118-081021.xlsx", sheet = 4,
+temp.raw <- read_excel("M:/LILA/Pomacea/FAU/Barrus_Data/EggMass/LILA_EnvironmentalData_060118-081021.xlsx", sheet = 4,
                        skip = 3) %>% 
   rename(Date = 'Daily Date',
          Temp.c = 'Data Value') 
 
 ##density data from Throw Trapping
 
-TTdata <- read_excel("C:/Users/Nathan Barrus/Documents/FAU/Masters Thesis/DornLabMeeting/EggMass/LILA_Stage_Contrast_TTdata_WS2018-DS2021.xlsx", sheet = 4)
+TTdata <- read_excel("M:/LILA/Pomacea/FAU/Barrus_Data/EggMass/LILA_Stage_Contrast_TTdata_WS2018-DS2021.xlsx", sheet = 4)
 
 
 #--------------------------------------
