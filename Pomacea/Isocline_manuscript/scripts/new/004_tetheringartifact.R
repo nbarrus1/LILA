@@ -69,14 +69,14 @@ p6 <- mort_summary %>%
            position = position_dodge())+
   theme_classic()+
   
-  scale_fill_manual(values = c("#333333","#999999", "white"),
+  scale_fill_manual(values = c("steelblue4","darkolivegreen", "tan4"),
                     labels = c("crushed", "empty", "missing"))+
   theme(legend.title = element_blank(),
         legend.position = c(.75,.8))+
   labs(y = "Count",
        title = " ")
 
-p6 + 
+patch.artifact <- p6 + 
   inset_element(p = img_crush,
                 left = 0.08,
                 bottom = 0.28,
