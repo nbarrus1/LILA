@@ -1,6 +1,8 @@
 #this script is to load in data for all the analyses performed in the isocline manuscript
 #this code should be run prior to all the other code
 
+rm(list = ls())
+
 #-------------------------------------------
 ####Libraries#####
 #-------------------------------------------
@@ -21,10 +23,18 @@ lengthcodes <- read_excel(here("Pomacea/Isocline_manuscript/data","tetheringdata
 
 tetherdata <- tetherdata.raw %>% 
   left_join(lengthcodes, by = c("season", "box", "bin", "box.id","box.day")) %>% 
-  select(-entered.by.x, -entered.by.y, -checked.by.x, -checked.by.y) %>% 
+  dplyr::select(-entered.by.x, -entered.by.y, -checked.by.x, -checked.by.y) %>% 
   mutate(survival = if_else(fate=="a", true = 1, false = 0))             #this adds a variable called survival with 1 = survival, and 0 = dead/eaten
 
 rm(list = c("lengthcodes","tetherdata.raw"))
+
+#--------------------------------------------
+#####predator data####
+#--------------------------------------------
+
+predatordata <- read_excel(here("Pomacea/Isocline_manuscript/data","PredatorDiets_v1.5.xls"), sheet = 3) %>% 
+  mutate(juvcray = if_else(SpeciesCode == "Profal" & StandLen_mm < 14, true = 0,
+                           false = 1))
 
 #---------------------------------------------
 ####predator free survival####
@@ -47,7 +57,7 @@ WATERTEMP_M3 <- read_csv(here("Pomacea/Isocline_manuscript/data", "HOBO_20423785
 AIRTEMP <- read_csv(here("Pomacea/Isocline_manuscript/data","DBHYDRO_airtemp_12-18-2020--8-11-2021.csv"), skip = 3) %>%  #read in the air temp data
   rename(date.time =`Daily Date`,                                 #change daily date to date.time                 
          temp.c = `Data Value`) %>%                               #change data value to air.temp.c
-  select(date.time,temp.c) %>%                                #only use these variables
+  dplyr::select(date.time,temp.c) %>%                                #only use these variables
   mutate(date.time = as_datetime(dmy(date.time)),
          type = "air_WestPalm")                                   #format the date and time to r's structure
 
@@ -62,7 +72,7 @@ TEMP <- WATERTEMP_M2 %>%                                          #save WATERTEM
   filter(date.time %within% interval(start = ymd("2020-12-18"),   #filter the data within the time intervals specified
                                      end = ymd("2021-8-11"))) %>% # 
   bind_rows(AIRTEMP) %>% 
-  select(date.time, type, temp.c) %>% 
+  dplyr::select(date.time, type, temp.c) %>% 
   mutate(season = if_else(date.time %within% interval(start = ymd("2020-12-18"),
                                                       end = ("2021-5-31")),
                           true = "dry", false = "wet"))
@@ -81,3 +91,4 @@ table(TEMP$type)                      #looks good each type as the same number o
 table(TEMP$season)                    #as expected there are more observatin in dry than wet
 
 rm(list = c("AIRTEMP","WATERTEMP_M2","WATERTEMP_M3"))
+
