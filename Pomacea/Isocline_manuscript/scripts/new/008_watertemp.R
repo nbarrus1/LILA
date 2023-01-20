@@ -46,8 +46,8 @@ TEMP %>%                                         #specify the data
 
 TEMP %>%                                         #specify the data 
   ggplot(aes(x = season, y = temp.c))+             #x is cell, y is water temp
-  geom_boxplot()+                                #initiate boxplot
-  geom_jitter()+                                 #overlay points 
+  geom_jitter()+ 
+  geom_boxplot()+                                #initiate boxplot                                #overlay points 
   theme_classic()                                #use the white background theme
 
 TEMP %>%                                         #specify the data 
