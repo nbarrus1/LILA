@@ -95,7 +95,7 @@ p5 <- mort_summary %>%
                     labels = c("crushed", "empty", "missing"))+
   theme(legend.title = element_blank(),
         legend.position = c(.75,.9))+
-  labs(y = "Count",
+  labs(y = "Artifact Count",
        x = "Season",
        title = " ")+
   annotate(geom = "text", x = .5, y = 22, label = "A)", size = 6)
@@ -145,7 +145,7 @@ patch.artifact <- p5 +
                     labels = c("Belostoma", "Crayfish"))+
   theme(legend.title = element_blank(),
         legend.position = c(.75,.8))+
-  labs(y = "Count",
+  labs(y = "Predator Abundance (n)",
        x = "Season",
        title = " ")+
    annotate(geom = "text", x = .6, y = 24, label = "B)", size = 6)
@@ -192,7 +192,7 @@ p7 <- vertpredatorsumm %>%
   theme(legend.title = element_blank(),
         legend.position = c(.87,.8),
         legend.text = element_text(size = 7))+
-  labs(y = "Count",
+  labs(y = "Predator Abundance (n)",
        title = " ")+
   annotate(geom = "text", x = .6, y = 100, label = "C)", size = 6)
 

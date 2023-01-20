@@ -87,7 +87,7 @@ rm(list = "tether_img")
 
 p3 <- tetherdata %>% 
   filter(wetland == "M2"|wetland=="M4") %>% 
-  ggplot(aes(x = length, y = survival, linetype = season,color = season, fill = season)) +
+  ggplot(aes(x = length, y = survival, color = season, fill = season)) +
   theme_classic()+
   geom_smooth( method="glm", se=T, fullrange=TRUE, 
               method.args = list(family=binomial), show.legend = F)+
@@ -96,15 +96,15 @@ p3 <- tetherdata %>%
   coord_cartesian(ylim =  c(0.55, 1.00))+
   labs(y = "Daily Survival Probability",
        x = "Shell Length (mm)")+
-  scale_color_manual(values = c("palegreen3","darkolivegreen"))+
-  scale_fill_manual(values = c("olivedrab1","olivedrab1"))+
+  scale_color_manual(values = c("tan4","steelblue4"))+
+  scale_fill_manual(values = c("tan","steelblue1"))+
   theme(plot.margin = unit(c(0,0,0,0), "cm"),
         legend.position = c(.8,.3),
         legend.background = element_rect(colour = "black"))
 
 p4 <- tetherdata %>% 
   filter(wetland == "M2"|wetland=="M4") %>% 
-  ggplot(aes(x = length, y = survival, linetype = season, color = season, fill = season)) +
+  ggplot(aes(x = length, y = survival, color = season, fill = season)) +
   theme_classic()+
   geom_smooth(method="glm", se=T, fullrange=TRUE, 
               method.args = list(family=binomial), show.legend = F)+
@@ -113,8 +113,8 @@ p4 <- tetherdata %>%
   coord_cartesian(ylim =  c(0.55, 1.00),
                   xlim = c(3,15))+
   scale_x_continuous(breaks = c(3,6,9,12,15))+
-  scale_color_manual(values = c("palegreen3","darkolivegreen"))+
-  scale_fill_manual(values = c("olivedrab1","olivedrab1"))+
+  scale_color_manual(values = c("tan4","steelblue4"))+
+  scale_fill_manual(values = c("tan","steelblue1"))+
   labs(y = "Daily Survival Probability",
        x = "Shell Length (mm)")+
   theme(plot.margin = unit(c(0,0,0,0), "cm"),
