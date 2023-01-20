@@ -38,6 +38,67 @@ predatordata <- read_excel(here("Pomacea/Isocline_manuscript/data","PredatorDiet
                            false = 1))
 
 #---------------------------------------------
+####predator diets####
+#---------------------------------------------
+
+#####load data####
+
+dietdata.raw <- read_excel(here("Pomacea/Isocline_manuscript/data","PredatorDiets_v1.5.xls"), sheet = 2)
+
+###clean up the data####
+
+#lines 18-22 create a new variable with lowest taxonomy of family
+
+dietdata.clean <- dietdata.raw %>%  #create a new tibble called clean using the raw data
+  unite(col = "pred.genus_species", c(Pred.Genus,Pred.Species), sep = " ") %>%   #combine predator genus and species names
+  mutate(low.taxonomy = if_else(!is.na(Prey.Family), true = Prey.Family,
+                                false = if_else(!is.na(Prey.Order), true = Prey.Order,
+                                                false = if_else(!is.na(Prey.Class), true = Prey.Class,
+                                                                false = if_else(!is.na(Prey.Phylum), true = Prey.Phylum,
+                                                                                false = Prey.Kingdom)))))
+
+rm(list = "dietdata.raw")
+
+##--------------------------------------------
+####growth data####
+##--------------------------------------------
+
+####load data####
+
+#growthdata
+growthdata <- read_excel(here("Pomacea/Isocline_manuscript/data","Growth_DataSheet_v5.xlsx"), sheet = 2)
+#treatment codes
+treatmentcode <- read_excel(here("Pomacea/Isocline_manuscript/data","Growth_DataSheet_v5.xlsx"), sheet = 4)
+#maculata length
+maclen <- read_excel(here("Pomacea/Isocline_manuscript/data","Growth_DataSheet_v5.xlsx"), sheet = 5) %>% 
+  group_by(Cage) %>% 
+  summarise(ave.maclength = mean(mac_size_mm, na.rm = T))
+
+#check data
+growthdata
+table(growthdata$Cell)
+table(growthdata$Cage)
+table(growthdata$Color)
+table(growthdata$Fate)
+table(is.na(growthdata$Start_mm))
+table(is.na(growthdata$End_mm))
+
+#add size classes and treatments
+
+growthdata <- growthdata %>% 
+  left_join(treatmentcode, by = c("Cage","Season")) 
+
+table(growthdata$SizeClass)
+table(growthdata$Code)
+summary(growthdata$SGR)
+
+rm(list = c("maclen","treatmentcode"))
+
+###cage experiment total phosphorus
+
+TP_data <- read_csv(here("Pomacea/Isocline_manuscript/data","table_cagecharact.csv"))
+
+#---------------------------------------------
 ####predator free survival####
 #---------------------------------------------
 
