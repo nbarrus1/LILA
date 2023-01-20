@@ -32,7 +32,8 @@ rm(list = c("lengthcodes","tetherdata.raw"))
 #####predator data####
 #--------------------------------------------
 
-predatordata <- read_excel(here("Pomacea/Isocline_manuscript/data","PredatorDiets_v1.5.xls"), sheet = 3) %>% 
+predatordata <- read_excel(here("Pomacea/Isocline_manuscript/data","PredatorDiets_v1.5.xls"), sheet = 3,
+                           na = "UNK") %>% 
   mutate(juvcray = if_else(SpeciesCode == "Profal" & StandLen_mm < 14, true = 0,
                            false = 1))
 
