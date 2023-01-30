@@ -12,14 +12,34 @@ library(MuMIn)
 #####analysis####
 #--------------------------------------
 
-#dry season
+####growth rate parameters####
+
+#dry season LILA
 
 fit_me <- lmer(SGR ~ Start_mm*Code + (1|Cage), data = growthdata[growthdata$Season == "dry",])
-summary(fit_me)  #results suggest a nonsignificant effect on the treatment
+model_summ <- summary(fit_me)  #results suggest a nonsignificant effect on the treatment
 
-#wet season
-fit_me <- lmer(SGR ~ Start_mm*Code + (1|Cage), data = growthdata[growthdata$Season == "wet",])
-summary(fit_me)
+dry_est <- model_summ$coefficients[1,1]
+
+dry_CI <- as_tibble(confint(fit_me,parm = "(Intercept)",level = 0.95))
+
+#wet season LILA
+fit_me <- lmer(SGR ~ Start_mm + (1|Cage), data = growthdata[growthdata$Season == "wet",])
+model_summ <- summary(fit_me)
+
+wet_est <- model_summ$coefficients[1,1]
+
+wet_CI <- as_tibble(confint(fit_me,parm = "(Intercept)",level = 0.95))
+
+#combined LILA
+fit_me <- lmer(SGR ~ Start_mm + (1|Cage), data = growthdata)
+model_summ <- summary(fit_me)
+
+comb_est <- model_summ$coefficients[1,1]
+
+comb_CI <- as_tibble(confint(fit_me,parm = "(Intercept)",level = 0.95))
+
+
 
 #Wet season TP
 t.test(TP_data$TP[TP_data$Treatment == "0%_exposure"],
