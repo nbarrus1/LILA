@@ -202,14 +202,14 @@ sum(N2)                              #populaiton size after day 2 again no repro
 
 #####load in environmental data #####
 
-environment_data <- read_xlsx(here("Pomacea/Isocline_manuscript/data","EnviroData_DBHYDRO_SnailModel.xlsx"), sheet = 3)   
+environment_data <- read_xlsx(here("Pomacea/Isocline_manuscript/data","EnvrionmentalData_M2&m1_1-1-20--12-31-20.xlsx"), sheet = 2)   
 environment_data
 #IT reads the dates into the file as dates as well!! 
 #convert our depths to cm, let also create a variable called mon for the month that each day 
 #is in this will be used for our seaonal aspect on fertility
 environment_data <- environment_data %>% 
-  mutate(Depth_M2_cm = (Depth_M2_ft - 13.5)*12*2.54,     #convert to cm above deep slough depth
-         Depth_M4_cm = (Depth_M4_ft - 13.5)*12*2.54,     #convert to cm above deep slough depth
+  mutate(Depth_M1_cm = (Depth_M1_ft - 13.5)*12*2.54,     #convert to cm above deep slough depth
+         Depth_M2_cm = (Depth_M2_ft - 13.5)*12*2.54,     #convert to cm above deep slough depth
          mon = months(environment_data$Date))            #our vector of months
 
 #take a quick look at the data

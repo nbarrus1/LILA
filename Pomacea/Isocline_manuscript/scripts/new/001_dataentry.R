@@ -102,7 +102,7 @@ TP_data <- read_csv(here("Pomacea/Isocline_manuscript/data","table_cagecharact.c
 ####predator free survival####
 #---------------------------------------------
 
-predatorfree <- read_excel("predatorfree_survival.xlsx", sheet = 2)
+predatorfree <- read_excel(here("Pomacea/Isocline_manuscript/data","predatorfree_survival.xlsx"), sheet = 2)
 
 #--------------------------------------------
 ####Water and Air Temps####
@@ -154,3 +154,82 @@ table(TEMP$season)                    #as expected there are more observatin in 
 
 rm(list = c("AIRTEMP","WATERTEMP_M2","WATERTEMP_M3"))
 
+#----------------------------------------
+######WCA Periphyton TP####
+#----------------------------------------
+
+WCA_TP <- read_excel(here("Pomacea/Isocline_manuscript/data","20221014_TPData_DornLab.xlsx")) %>% 
+  mutate(Site = c(rep("WCA2", times = 2),
+                  rep("WCA3", times = 2)))
+
+#data to create regression to predict growth rates
+
+growthexpdata <- read_excel(here("Pomacea/Isocline_manuscript/data","FieldGrowthExperiments-2019-2020.xlsx"))
+
+nutrientdata <- read_excel(here("Pomacea/Isocline_manuscript/data","RawTP_2019&2020.xlsx"), sheet = 5)
+
+growth.summ <- growthexpdata %>% 
+  group_by(year,cell,treatment,cage,species) %>% 
+  summarise(fl_mean = mean(length_sl, na.rm = T),
+            fm_mean = mean(mass, na.rm = T)) %>% 
+  mutate(cage = as.character(cage))
+
+####obtain initial masses 
+
+#create regression to get dry weights
+#P.paludosa length weight regression
+ppal.lengthweight <- function(SL) {
+  ln.tot.drymass <- 2.64*log(SL) - 1.84
+}
+
+#P.maculata length weight regression
+
+pmac.lengthweight <- function(SL) {
+  ln.tot.drymass <- 2.70*log(SL) - 2.21
+}
+
+####get initial lengths
+initialdata <- tibble(year = c(2019,2019,2020,2020),
+                      species = c("P.paludosa","P.maculata","P.paludosa","P.maculata"),
+                      il_mean = c(3.56,3.61,4.40,4.60)) %>% 
+  mutate(im_mean = pmac.lengthweight(SL = il_mean))
+
+growth.summ <- growth.summ %>% 
+  left_join(initialdata, by = c("year", "species"))
+
+####Nutrient Data####
+
+nutrientdata <- nutrientdata %>% 
+  select(Year, Cell, Cage, 'TP_ug/g') %>% 
+  rename(cell = Cell,
+         cage = Cage,
+         TP = 'TP_ug/g',
+         year = Year)
+
+head(nutrientdata)
+
+growth.summ <- growth.summ %>% 
+  left_join(nutrientdata, by = c("year", "cell", "cage")) 
+
+growth.summ <-growth.summ%>% 
+  mutate(SGR_mass = (log(fm_mean)-log(im_mean))/35) %>% 
+  mutate(Growth_mass = (fm_mean - im_mean)/35,
+         SGR_length = (log(fl_mean)-log(il_mean))/35,
+         Growth_length = (fl_mean - il_mean)/35) 
+
+TP_mean <- mean(growth.summ$TP, na.rm = T)
+TP_sd <- sd(growth.summ$TP, na.rm = T)
+
+growth.summ <- growth.summ %>% 
+  mutate(z_TP = (TP-TP_mean)/TP_sd)
+
+growth.summ <- growth.summ %>% 
+  drop_na(TP) %>% 
+  filter(TP < 1000)
+
+
+###----------------------
+####predator free survival####
+#--------------------------
+
+enclosuredata <- read_excel(here("Pomacea/Isocline_manuscript/data","predatorfree_survival.xlsx"), sheet = 2)

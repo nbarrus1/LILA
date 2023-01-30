@@ -258,36 +258,36 @@ thresholdplot_talkplot <- isodat_g %>%
    geom_point(aes(x = (0.987*.987), y = 0.05), size = 6, shape = 21, color = "black",
              fill = "dark red")+
   geom_smooth(color = "midnight blue", size = 1.5, linetype = 1, se = F)+
-  geom_pointrange(aes(y = kgrowth, x = CJS.w,
-                     xmin = low.cjs.w, xmax = upp.cjs.w), data = para_est, size = 1)+
-  geom_pointrange(aes(y = kgrowth, x = CJS.w,
-                      ymin = low.g, ymax = upp.g), data = para_est, size = 1)+
-  geom_point(aes(y = kgrowth, x = CJS.w), data = para_est, shape = 22, size = 6, color = "black", fill = "#666666")+
-  geom_pointrange(aes(y = kgrowth, x = CJS.wo,
-  xmin = low.cjs.wo, xmax = upp.cjs.wo), data = para_est,size = 1)+
-  geom_pointrange(aes(y = kgrowth, x = CJS.wo,
-                      ymin = low.g, ymax = upp.g), data = para_est,size = 1)+
-  geom_point(aes(y = kgrowth, x = CJS.wo), data = para_est,shape = 21, size = 6, color = "black", fill = "#666666")+
+  #geom_pointrange(aes(y = kgrowth, x = CJS.w,
+ #                    xmin = low.cjs.w, xmax = upp.cjs.w), data = para_est, size = 1)+
+  #geom_pointrange(aes(y = kgrowth, x = CJS.w,
+  #                    ymin = low.g, ymax = upp.g), data = para_est, size = 1)+
+  #geom_point(aes(y = kgrowth, x = CJS.w), data = para_est, shape = 22, size = 6, color = "black", fill = "#666666")+
+  #geom_pointrange(aes(y = kgrowth, x = CJS.wo,
+  #xmin = low.cjs.wo, xmax = upp.cjs.wo), data = para_est,size = 1)+
+ # geom_pointrange(aes(y = kgrowth, x = CJS.wo,
+  #                    ymin = low.g, ymax = upp.g), data = para_est,size = 1)+
+ # geom_point(aes(y = kgrowth, x = CJS.wo), data = para_est,shape = 21, size = 6, color = "black", fill = "#666666")+
   theme_classic()+
   coord_flip()+
   scale_y_continuous(breaks = c(0.01,0.03,0.05,0.07,0.09))+
   scale_x_continuous(limits = c(0.65,1.04), breaks = c(0.65,0.7,0.75,0.8,0.85,0.9,0.95,1.00))+
-  labs(x ="Cumulative Juvenile Survival", y ="Growth (k)")+
+  labs(x ="Cumulative Juvenile Survival", y ="Growth (k)")
   #annotate(geom = "text", x = 0.75, y = 0.045, label = "Population declining")+
   #annotate(geom = "text", x = 0.925, y = 0.07, label = "Population increasing")+
-  annotate(geom = "text", x = 0.993, y = 0.05, label = "(EVERSNAIL parameters)",
-           size = 6, color = "dark red")+
-  theme(axis.title = element_text(size = 24, face = "bold"),
-        text = element_text(size = 18, face = "bold"))+
+ # annotate(geom = "text", x = 0.993, y = 0.05, label = "(EVERSNAIL parameters)",
+  #         size = 6, color = "dark red")+
+ # theme(axis.title = element_text(size = 24, face = "bold"),
+ #       text = element_text(size = 18, face = "bold"))+
   #annotate(geom = "text", x = 1.04, y = 0.022, label = "without predators")+
   #annotate(geom = "text", x = 0.83, y = 0.028, label = "with")+
-  #annotate(geom = "text", x = 0.81, y = 0.028, label = "predators")+
-  annotate(geom = "text", x = 1.013, y = 0.011, label = "D")+
-  annotate(geom = "text", x = 1.017, y = 0.016, label = "C")+
-  annotate(geom = "text", x = 1.02, y = 0.021, label = "W")+
-  annotate(geom = "text", x = 0.804, y = 0.0134, label = "D")+
-  annotate(geom = "text", x = 0.834, y = 0.0181, label = "C")+
-  annotate(geom = "text", x = 0.913, y = 0.024, label = "W")
+ # #annotate(geom = "text", x = 0.81, y = 0.028, label = "predators")+
+ # annotate(geom = "text", x = 1.013, y = 0.011, label = "D")+
+ # annotate(geom = "text", x = 1.017, y = 0.016, label = "C")+
+ # annotate(geom = "text", x = 1.02, y = 0.021, label = "W")+
+ # annotate(geom = "text", x = 0.804, y = 0.0134, label = "D")+
+ # annotate(geom = "text", x = 0.834, y = 0.0181, label = "C")+
+ # annotate(geom = "text", x = 0.913, y = 0.024, label = "W")
 
 
 thresholdplot_talkplot
