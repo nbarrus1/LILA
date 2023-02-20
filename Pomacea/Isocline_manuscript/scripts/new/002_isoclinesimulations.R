@@ -6,7 +6,7 @@
 ###### load libraries ########
 #-----------------------------------------------------------------------------------#
 
-library(demogR)                           #for building transition matrix
+library(demogR) #for building transition matrix
 
 #-----------------------------------------------------------------------------------#
 ##### Make Functions for growth, survival, and fertility assumtions #####
@@ -214,10 +214,9 @@ environment_data <- environment_data %>%
 
 #take a quick look at the data
 #temperature
-plot(Temp_c~Date, data = environment_data, type = "l")
+plot(Temp_nat~Date, data = environment_data, type = "l")
 #depth
 plot(Depth_M2_cm~Date, data = environment_data, type = "l")   #M2 Depths
-lines(Depth_M4_cm~Date, data = environment_data, col = "red") #M4 Depths
 
 #chech fertility seasonality see figure A1-4
 plot(x = environment_data$Date, y = rep.season(month = environment_data$mon), type = "l")
@@ -227,10 +226,8 @@ plot(x = environment_data$Date, y = rep.season(month = environment_data$mon), ty
 #create data frame for model results
 length(environment_data$Depth_M2_cm)
 
-results <- tibble(pop_size_M2 = rep.int(0,times = 518)) %>% 
-  mutate(no.mature_M2 = rep.int(0,times = 518),
-         pop_size_M4 = rep.int(0,times = 518),
-         no.mature_M4 = rep.int(0,times = 518))
+results <- tibble(pop_size_M2 = rep.int(0,times = length(environment_data$Depth_M2_cm))) %>% 
+  mutate(no.mature_M2 = rep.int(0,times = length(environment_data$Depth_M2_cm)))
 
 #give our starting number of snails and our population vector
 N_M2 <- matrix(data = c(100,rep.int(0,times = 500)))
@@ -245,12 +242,12 @@ N_M4 <- matrix(data = c(100,rep.int(0,times = 500)))
 
 
 #loop for M2
-for(i in 1:518) {
+for(i in 1:length(environment_data$Depth_M2_cm)) {
   Sx <- survival(depth = environment_data$Depth_M2_cm[i], size = growth(age = 1:500), age = 1:500)
   Fx <- c(0,round(x = (frac.females *
                          egg.number * 
                          rep.depth(depth = environment_data$Depth_M2_cm[i]) *
-                         rep.temp (temp = environment_data$Temp_c[i])*
+                         rep.temp (temp = environment_data$Temp_nat[i])*
                          sex.mature.ratio(growth(age = 1:500))*
                          rep.season(month = environment_data$mon[i])),
                   digits = 3))
@@ -264,25 +261,6 @@ for(i in 1:518) {
   results$no.mature_M2[i] <- sum(N_M2[60:501])
 }
 
-####loop for M4
-for(i in 1:518) {
-  Sx <- survival(depth = environment_data$Depth_M4_cm[i], size = growth(age = 1:500), age = 1:500)
-  Fx <- c(0,round(x = (frac.females *
-                         egg.number * 
-                         rep.depth(depth = environment_data$Depth_M4_cm[i]) *
-                         rep.temp (temp = environment_data$Temp_c[i])*
-                         sex.mature.ratio(growth(age = 1:500))*
-                         rep.season(month = environment_data$mon[i])),
-                  digits = 3))
-  
-  L <- odiag(Sx, at = -1)
-  L[1,] <- Fx
-  
-  N_M4 <- L %*% N_M4
-  
-  results$pop_size_M4[i] <- sum(N_M4)
-  results$no.mature_M4[i] <- sum(N_M4[60:501])
-}
 
 #here is what our results look like from the simulation
 results
@@ -290,5 +268,9 @@ results
 #lets plot the values we get by date to visualize the results
 plot(x=environment_data$Date, y = results$pop_size_M2/80000)
 plot(x=environment_data$Date, y = results$no.mature_M2/80000)
-plot(x=environment_data$Date, y = results$pop_size_M4/80000)
-plot(x=environment_data$Date, y = results$no.mature_M4/80000)
+
+
+
+
+
+
