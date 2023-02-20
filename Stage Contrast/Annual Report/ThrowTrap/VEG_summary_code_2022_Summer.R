@@ -267,6 +267,9 @@ stemden_model_season_i <- lme(STEMS ~ Hydro + Season + Hydro*Season,
                             random = ~1|Wetland,
                             data = mean_slough_stems)
 
+stemden_model_time_i <- lme(STEMS ~ Hydro + Cumulative + Hydro*Cumulative,
+                              random = ~1|Wetland,
+                              data = mean_slough_stems)
 
 # Step 2:
 # Run ACF function to obtain ACF values
@@ -296,6 +299,20 @@ ACF_B_5 <- -0.44445552
 ACF_B_6 <- -0.42271807
 ACF_B_7 <- -0.25294346
 ACF_B_8 <-  0.05228629
+
+# Run ACF for season count model
+ACF(stemden_model_time_i)
+ACF_C_1 <- -0.27703766
+ACF_C_2 <- -0.06335845
+ACF_C_3 <-  0.01094750
+ACF_C_4 <- -0.06685046
+ACF_C_5 <- -0.19386927
+ACF_C_6 <-  0.23134553
+ACF_C_7 <-  0.13034143
+ACF_C_8 <-  0.09479453
+# Store ACF outputs below, add lines as necessary
+# only store values > 0 or < 1
+
 
 # Step 3:
 # Run rmANOVAs to determine if hydro-pattern treatment has had an effect on crayfish
@@ -378,6 +395,45 @@ shapiro.test(residuals(model.b)) # P = 0.4536
 qqnorm(model.b$residuals)
 qqline(model.b$residuals)
 anova(model.b)
+
+#### Part 3: Model.c
+
+# model.c.1 examines cumulative and Hydro effect on stem counts
+model.c <- lme(STEMS ~ factor(Hydro)*ordered(Cumulative), 
+               random = ~1|Wetland, correlation = corAR1(form = ~1|Wetland, value = ACF_C_1),
+               data = mean_slough_stems, method = "REML")
+# Ran all iterations of ACF values within the model (not included in code)
+# two AIC value outputs came from simple (1 ACF value) and complex (2 ACF values) 
+# Simple AIC = 169.6311 and Complex AIC = 168.3009
+
+summary(model.c)
+anova(model.c)
+#                                   numDF denDF   F-value p-value
+# (Intercept)                           1    16 137.14286  <.0001
+# factor(Hydro)                         1     2  15.74357  0.0580
+# ordered(Cumulative)                   8    16   5.43161  0.0020
+# factor(Hydro):ordered(Cumulative)     8    16   1.75767  0.1604
+
+# Check for violations of assumptions
+# Assumption Testing:
+# Assumption 1: Linearity of data (Explanatory variables are related linearly to the response variable/s)
+#         Explained: plot residuals, if there is obvious patterning in the plot this assumption is VIOLATED!!!
+plot.model.c <- plot(resid(model.c))
+
+
+#Check assumption of homogeneity of variance:
+mean_slough_stems$resc <- residuals(model.c) #extracts residual and places them in a new column in dataframe
+mean_slough_stems$absresc <- abs(mean_slough_stems$resc) #creates new column with absolute value of residuals
+mean_slough_stems$resc2 <- mean_slough_stems$absresc^2 #squares ths absolute value of residuals to provide more robust estimate
+Levene.model.c <- lm(resc2 ~ Wetland, data = mean_slough_stems) #anova of the squared residuals
+anova(Levene.model.c) # P = 0.04368 
+
+
+# Test for normal distribution of residuals
+shapiro.test(residuals(model.c)) # P = 0.6171
+qqnorm(model.c$residuals)
+qqline(model.c$residuals)
+anova(model.c)
 
 
 

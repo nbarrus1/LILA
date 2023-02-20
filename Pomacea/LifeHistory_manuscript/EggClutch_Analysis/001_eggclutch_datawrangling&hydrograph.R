@@ -24,7 +24,7 @@ library(geosphere)       #package to find day lengths (photoperiod)
 
 ####egg clutch data
 
-LILA.egg.counts <- read_excel("M:/LILA/Pomacea/FAU/Barrus_Data/EggMass/EggMassData_v1.12_nb.xlsx", sheet = 2) %>% 
+LILA.egg.counts <- read_excel("M:/LILA/Pomacea/FAU/Barrus_Data/EggMass/EggMassData_v1.12_nb.xlsx", sheet = 2) #%>% 
   mutate(year = year(Date),
          month = months(Date),
          dayofyear = as.numeric(format(Date, "%j"))) 

@@ -1,5 +1,5 @@
 #the purpose of this code is it to perform summary statistics on the variables used for modelling egg clutchs
-#and standardize all the variables in preperation for the modelling effort.
+#and standardize all the variables in preparation for the modelling effort.
 
 #note the code from 001 needs to be ran before this code is run
 
@@ -57,7 +57,8 @@ summary_stat_env <- summary_stat %>%
             sd.depth = sd(ave.depth.cm, na.rm = T),
             max.depth = max(ave.depth.cm, na.rm = T),
             min.depth = min(ave.depth.cm, na.rm = T),
-            ave.dens = mean(pom.dens, na.rm = T),
+            ave.dens = mean(pom.dens, na.rm = T))
+mutate(se.depth = sd.depth/sqrt(n)),
             sd.dens = sd(pom.dens, na.rm = T),
             max.dens = max(pom.dens, na.rm = T),
             min.dens = min(pom.dens, na.rm = T),
