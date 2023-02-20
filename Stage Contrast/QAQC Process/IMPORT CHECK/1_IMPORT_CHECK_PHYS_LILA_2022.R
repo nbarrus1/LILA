@@ -46,7 +46,7 @@ library(lubridate)
 #note 2) the dates and times were combined together into date_time column
 #note 3) if there are missing times this code will replace the hour with a 0 and a minute with 00. So,
 #the missing times will read 00:00  
-PHYS_Data <- read_xlsx('M:/LILA/LILA Data Entry/2022/Throw Trapping/Spring/LILA_TT_2022_PHYS_SPRING.xlsx',
+PHYS_Data <- read_xlsx('M:/LILA/LILA Data Entry/2022/Throw Trapping/Summer/LILA_TT_2022_PHYS_SUMMER.xlsx',
                        na = ".",
                        col_types = c("guess",
                                      "guess",
@@ -85,7 +85,7 @@ PHYS_Data <- read_xlsx('M:/LILA/LILA Data Entry/2022/Throw Trapping/Spring/LILA_
 #which makes sense because throw is categorical type variable
 
 QC_PHYS <- PHYS_Data %>% 
-  mutate(Session = if_else(Session == "Spring 2022",        #session will need to be changed to the current session
+  mutate(Session = if_else(Session == "Summer 2022",        #session will need to be changed to the current session
                                    true = paste(Session),
                                    false = "Session Error"),
          Wetland = if_else(Wetland == "M1" |
@@ -108,14 +108,14 @@ QC_PHYS <- PHYS_Data %>%
          #should be the saturday after sampling -make sure the dates are entered in the same format as already 
          #written surrounded by a quotations i.e., "MM-DD-YYYY", If there is only one sampling week (i.e., wet season
          # sampling) then you can omit an interval make sure to also omit the "|" symbol
-         Date = if_else(date_time %within% interval(start = mdy("03-13-2022"), end = mdy("03-19-2022"))|
-                        date_time %within% interval(start = mdy("04-03-2022"), end = mdy("04-09-2022")), 
+         Date = if_else(date_time %within% interval(start = mdy("07-24-2022"), end = mdy("07-30-2022"))|
+                        date_time %within% interval(start = mdy("07-24-2022"), end = mdy("07-30-2022")), 
                                   true = paste(Date),
                                   false = "Date Error"),
          Date = if_else(!is.na(Date),
                         paste(Date),
                         false = "Date Error"),
-         Time = if_else(date_time %within% interval(start = mdy("03-13-2022"), end = mdy("03-19-2022"))|
+         Time = if_else(date_time %within% interval(start = mdy("07-01-2022"), end = mdy("07-31-2022"))|
                         date_time %within% interval(start = mdy("04-03-2022"), end = mdy("04-09-2022")),
                                   true =  if_else(is.na(Time),
                                                   true = NA_character_,
@@ -128,7 +128,7 @@ QC_PHYS <- PHYS_Data %>%
                        Day == "Friday",
                                   true = paste(Day),
                                   false = "Day Error"),
-         Wateryr = if_else(Wateryr == 2021,
+         Wateryr = if_else(Wateryr == 2022,
                                   true = paste(Wateryr),
                                   false = "Wateryr Error"))
 
