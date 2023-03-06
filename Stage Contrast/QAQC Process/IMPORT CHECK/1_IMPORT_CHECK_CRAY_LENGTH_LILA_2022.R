@@ -42,7 +42,7 @@ library(readxl)
 #readxl allows excel files to be read into R
 
 #### Import Cray file as an xlsx file, update file path every year/season 
-cray_length_spring_2022 <- read_xlsx('M:/LILA/LILA Data Entry/2022/Throw Trapping/Spring/LILA_TT_2022_CRAY_SPRING.xlsx',
+cray_length_summer_2022 <- read_xlsx('M:/LILA/LILA Data Entry/2022/Throw Trapping/Summer/LILA_TT_2022_CRAY_SUMMER.xlsx',
                                      na = ".") 
 
 #### 1st QAQC: Checking Session, Wetland, Year, Month, Day, Throw for Errors.
@@ -52,8 +52,8 @@ cray_length_spring_2022 <- read_xlsx('M:/LILA/LILA Data Entry/2022/Throw Trappin
 #note 2) the QC process will change the data type from numeric to character 
 #which makes sense because throw is categorical type variable
 
-QC_cray <- cray_length_spring_2022 %>% 
-  mutate(Session = if_else(Session == "Spring 2022",            #session will need to be changed to the current session
+QC_cray <- cray_length_summer_2022 %>% 
+  mutate(Session = if_else(Session == "Summer 2022",            #session will need to be changed to the current session
                                    true = paste(Session),
                                    false = "Session Error"),
          Wetland = if_else(Wetland == "M1" |

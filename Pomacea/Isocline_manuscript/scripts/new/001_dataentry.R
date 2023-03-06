@@ -233,3 +233,82 @@ growth.summ <- growth.summ %>%
 #--------------------------
 
 enclosuredata <- read_excel(here("Pomacea/Isocline_manuscript/data","predatorfree_survival.xlsx"), sheet = 2)
+
+
+####--------------------------
+###WCA Depths environmental averages###
+#----------------------------
+
+###please note the measured depths are taken from our WCA3A tethering experiments sites
+###we used the site coordinates to get depths from EDEN and we corrected them using the 
+###measured depths
+
+WCA_correction_temp <- tetherdata %>% 
+  filter(region == "WCA3A") %>% 
+  select(wetland,depth,date.placed) %>% 
+  drop_na(depth) %>% 
+  group_by(wetland) %>% 
+  summarise(depth = mean(depth, na.rm = T)) %>% 
+  mutate(date = mdy("7/18/2022")) %>% 
+  rename(measured_depth = depth)
+
+dat2010_2020 <- read_table(here("Pomacea/Isocline_manuscript/data","waterdepths_eden_isocline_2010-2020.txt"),
+                           skip = 5, col_names = c("date","WCA02","WCA03")) %>% 
+  gather(WCA02,WCA03, key = "wetland", value = "eden_depth")
+
+dat2021_2022 <-  read_table(here("Pomacea/Isocline_manuscript/data","waterdepths_eden_isocline_2021-2022.txt"),
+                            skip = 5, col_names = c("date","WCA02","WCA03"))  %>% 
+  gather(WCA02,WCA03, key = "wetland", value = "eden_depth") 
+
+WCA_correction <- dat2021_2022 %>% 
+  left_join(WCA_correction_temp,by = c("wetland","date")) %>% 
+  drop_na(measured_depth) %>% 
+  mutate(correction = eden_depth - measured_depth) %>% 
+  select(wetland,correction)
+
+WCA_depth_raw <- dat2010_2020 %>% 
+  bind_rows(dat2021_2022) %>% 
+  left_join(WCA_correction, by = "wetland") %>% 
+  mutate(depth_corrected = eden_depth-correction,
+         year = year(date),
+         month = month(date),
+         day = day(date))
+
+WCA_depth_summ <- WCA_depth_raw %>%
+  group_by(wetland,month,day) %>% 
+  summarise(depth_ave = mean(depth_corrected)) %>% 
+  ungroup() %>% 
+  mutate(year = 2020) %>% 
+  unite(month,day,year, col = date, sep = "/") %>% 
+  mutate(date = mdy(date)) %>% 
+  filter(date != mdy("2/29/2020"))
+  
+rm(list = c("dat2010_2020","dat2021_2022","WCA_correction_temp"))
+
+###please note that these temps are taken from the meterologic station in WCA3A
+###the name is 3AS3WX lat (255106.215) long (804558.543) dbkey (LA373)
+
+WCA_temp_raw <- read_csv(here("Pomacea/Isocline_manuscript/data","WCA3A_temp.csv"),
+                           skip = 3) %>% 
+  rename(date = `Daily Date`,
+         temp = `Data Value`) %>% 
+  mutate(date = dmy(date),
+         year = year(date),
+         month = month(date),
+         day = day(date))
+
+WCA_temp_summ <- WCA_temp_raw %>%
+  group_by(month,day) %>% 
+  summarise(temp_ave = mean(temp)) %>% 
+  ungroup() %>% 
+  mutate(year = 2020) %>% 
+  unite(month,day,year, col = date, sep = "/") %>% 
+  mutate(date = mdy(date)) %>% 
+  filter(date != mdy("2/29/2020")) %>% 
+  select(date,temp_ave)
+
+
+#####combine the two 
+
+WCA_environment <- WCA_depth_summ %>% 
+  left_join(WCA_temp_summ, by = "date")

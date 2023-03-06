@@ -8,6 +8,9 @@ rm(list = setdiff(ls(),"summ.LILA.egg"))
 #####load in libraries######
 #-----------------------------
 
+
+install.packages("tidyverse")
+
 library(tidyverse)
 library(plot3D)          #packaged to create 3D regression plane
 library(MASS)            #model fitting package contains
