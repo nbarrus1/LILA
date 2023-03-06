@@ -21,6 +21,26 @@ library(lemon)           #package for creating more readable plot pannels
 library(cowplot)         #package that puts multiple plots together
 library(ggpubr)          #adds important ggplot features neccesary for publishing
 
+
+#--------------------------------------------
+####Zscores####
+#--------------------------------------------
+summ.LILA.egg <- summ.LILA.egg %>% 
+  ungroup() %>% 
+  mutate(zavedepth = (ave.depth.cm - mean(ave.depth.cm, na.rm = TRUE))/ sd(ave.depth.cm, na.rm = T),
+         zsddepth = (sd.depth.cm - mean(sd.depth.cm, na.rm = TRUE))/ sd(sd.depth.cm, na.rm = T),
+         zavetemp = (ave.temp.c - mean(ave.temp.c, na.rm = TRUE))/ sd(ave.temp.c, na.rm = T),
+         zdeltadepth = (depth.change - mean(depth.change, na.rm = TRUE))/ sd(depth.change, na.rm = T),
+         zphotoperiod = (photoperiod - mean(photoperiod, na.rm = TRUE))/ sd(photoperiod, na.rm = T))
+
+mean(summ.LILA.egg$ave.depth.cm, na.rm = TRUE)
+mean(summ.LILA.egg$ave.temp.c,na.rm = TRUE)
+sd(summ.LILA.egg$ave.depth.cm, na.rm = TRUE)
+sd(summ.LILA.egg$ave.temp.c,na.rm = TRUE)
+max(summ.LILA.egg$ave.depth.cm)
+max(summ.LILA.egg$ave.temp.c)
+min(summ.LILA.egg$ave.depth.cm)
+min(summ.LILA.egg$ave.temp.c)
 #-------------------------------------------
 #####model construction for P. paludosa#####
 #-------------------------------------------
@@ -166,6 +186,7 @@ pal.mefit24 <- glmer.nb(formula = count ~ zavetemp + zavedepth + (1|Cell), data 
 #temp x depth interaction
 pal.mefit25 <- glmer.nb(formula = count ~ zavetemp + zavedepth +zavetemp*zavedepth+ (1|Cell), data = ppal.egg)
 
+summary(pal.mefit25)
 #temp, depth ,dens
 pal.mefit26 <- glmer.nb(formula = count ~ zavetemp + zavedepth + zpaldens + (1|Cell), data = ppal.egg)
 
@@ -189,6 +210,7 @@ pal.mefit30.3<- update(pal.mefit30,start=ss,control=glmerControl(optimizer="boby
 #temp x binomial depth
 pal.mefit31 <- glmer.nb(formula = count ~ zavedepth*zavetemp + I(zavedepth^2)*zavetemp+ (1|Cell), data = ppal.egg)
 
+summary(pal.mefit31)
 #photo
 pal.mefit32 <- glmer.nb(formula = count ~ zphotoperiod+ (1|Cell), data = ppal.egg)
 
