@@ -8,6 +8,7 @@
 
 library(demogR) #for building transition matrix
 
+
 #-----------------------------------------------------------------------------------#
 ##### Make Functions for growth, survival, and fertility assumtions #####
 #-----------------------------------------------------------------------------------#
@@ -47,9 +48,13 @@ plot(x = 1:600, y = growth(age = 1:600), xlab = "age (days)", ylab = "size (mm)"
 #the age of mortality is 500 days (table A1-1) is given in the equation for rapid die off
 #the k(age) value is 0.1 (table A1-1) is in the equation for rapid die off
 
-survival <- function(depth, size, age) {
+survival <- function(depth, size, age, Surv1 = 0.987, Surv2 = 0.987) {
   if(depth > 0) {
-    surv = if_else(size <= 16, true = 0.987, false = 0.99/(1+exp(-0.1*(500 - age))))
+    surv = if_else(size <= 6, 
+                   true = Surv1,
+                   false = if_else(size > 6 & size <= 10,
+                                   true = Surv2,
+                                   false = if_else(size <= 16, true = 0.987, false = 0.99/(1+exp(-0.1*(500 - age))))))
   }
   else { surv = if_else(size <= 6, 
                         true = 0.976,
@@ -141,9 +146,9 @@ plot(x = temp.c, y = rep.temp(temp = temp.c))
 #(where some reproduction happens but not a lot). and 0 for any other month where there is no reproduction.
 # I will show how this is working when I imput the Date data from our environmental data
 rep.season <- function(month){
-  if_else(month == "February"| month == "March"| month == "April"|month == "May",
+  if_else(month == 2| month == 3| month == 4 |month == 5,
           true = 1,
-          false = if_else(month == "June"| month=="July"| month == "August",
+          false = if_else(month == 6| month==7| month == 8,
                           true = 0.3,
                           false = 0))
 }
@@ -210,7 +215,7 @@ environment_data
 environment_data <- environment_data %>% 
   mutate(Depth_M1_cm = (Depth_M1_ft - 13.5)*12*2.54,     #convert to cm above deep slough depth
          Depth_M2_cm = (Depth_M2_ft - 13.5)*12*2.54,     #convert to cm above deep slough depth
-         mon = months(environment_data$Date))            #our vector of months
+         mon = month(environment_data$Date))            #our vector of months
 
 #take a quick look at the data
 #temperature
@@ -219,7 +224,7 @@ plot(Temp_nat~Date, data = environment_data, type = "l")
 plot(Depth_M2_cm~Date, data = environment_data, type = "l")   #M2 Depths
 
 #chech fertility seasonality see figure A1-4
-plot(x = environment_data$Date, y = rep.season(month = environment_data$mon), type = "l")
+plot(x = environment_data$mon, y = rep.season(month = environment_data$mon), type = "l")
 
 #####Create model that constantly updates with environmental variables####
 
@@ -229,9 +234,9 @@ length(environment_data$Depth_M2_cm)
 results <- tibble(pop_size_M2 = rep.int(0,times = length(environment_data$Depth_M2_cm))) %>% 
   mutate(no.mature_M2 = rep.int(0,times = length(environment_data$Depth_M2_cm)))
 
+results <- as.matrix(results)
 #give our starting number of snails and our population vector
 N_M2 <- matrix(data = c(100,rep.int(0,times = 500)))
-N_M4 <- matrix(data = c(100,rep.int(0,times = 500)))
 
 #Below here there are two loops, one fro M2 and another for M4, that take our daily measures of 
 #depth and temperature and creates a Leslie matrix for that given day. Then its going to multiply
@@ -257,13 +262,13 @@ for(i in 1:length(environment_data$Depth_M2_cm)) {
   
   N_M2 <- L %*% N_M2
   
-  results$pop_size_M2[i] <- sum(N_M2)
-  results$no.mature_M2[i] <- sum(N_M2[60:501])
+  results[i,1] <- sum(N_M2)
+  results[i,2] <- sum(N_M2[60:501])
 }
 
 
 #here is what our results look like from the simulation
-results
+results <- as.data.frame(results)
 
 #lets plot the values we get by date to visualize the results
 plot(x=environment_data$Date, y = results$pop_size_M2/80000)
@@ -272,5 +277,484 @@ plot(x=environment_data$Date, y = results$no.mature_M2/80000)
 
 
 
+#----------------------------------------------------------------------------
+####Simulation for initial population size####
+#----------------------------------------------------------------------------
+
+#---------step 1) input data-------
+
+#Initial size
+N_100 <- matrix(data = c(100,rep.int(0,times = 500)))
+N_1000 <- matrix(data = c(1000,rep.int(0,times = 500)))
+N_10000 <- matrix(data = c(10000,rep.int(0,times = 500)))
+
+#matrix of environmental data
+
+environment_10yr <- tibble(depth = rep(environment_data$Depth_M2_cm, times = 10),
+                           temp = rep(environment_data$Temp_nat, times = 10),
+                           year = c(rep(1, times = 366),
+                                    rep(2, times = 366),
+                                    rep(3, times = 366),
+                                    rep(4, times = 366),
+                                    rep(5, times = 366),
+                                    rep(6, times = 366),
+                                    rep(7, times = 366),
+                                    rep(8, times = 366),
+                                    rep(9, times = 366),
+                                    rep(10, times = 366)),
+                           month = rep(month(environment_data$Date), times = 10),
+                           day = rep(day(environment_data$Date), times = 10),
+                           julian = rep(yday(environment_data$Date), times = 10))
+
+environment_10yr <- as.matrix(environment_10yr)
+
+#matrix for results
+
+results_int_100 <- tibble(year = environment_10yr[,3],
+                  month = environment_10yr[,4],
+                  day = environment_10yr[,5],
+                  julian = environment_10yr[,6],
+                  pop_size = rep.int(0,times = length(environment_10yr[,1])))
+
+results_int_100 <- results_int_100
+results_int_1000 <- results_int_100
+results_int_10000 <- results_int_100
+
+#----------Step 2) Loops for each initial size --------------#
+
+###100
+
+for(i in 1:length(environment_10yr[,1])) {
+  Sx <- survival(depth = environment_10yr[i,1], size = growth(age = 1:500), age = 1:500)
+  Fx <- c(0,round(x = (frac.females *
+                         egg.number * 
+                         rep.depth(depth = environment_10yr[i,1]) *
+                         rep.temp (temp = environment_10yr[i,2])*
+                         sex.mature.ratio(growth(age = 1:500))*
+                         rep.season(month = environment_10yr[i,4])),
+                  digits = 3))
+  
+  L <- odiag(Sx, at = -1)
+  L[1,] <- Fx
+  
+  N_100 <- L %*% N_100
+  
+  results_int_100$pop_size[i] <- sum(N_100)
+}
 
 
+###1000
+
+for(i in 1:length(environment_10yr[,1])) {
+  Sx <- survival(depth = environment_10yr[i,1], size = growth(age = 1:500), age = 1:500)
+  Fx <- c(0,round(x = (frac.females *
+                         egg.number * 
+                         rep.depth(depth = environment_10yr[i,1]) *
+                         rep.temp (temp = environment_10yr[i,2])*
+                         sex.mature.ratio(growth(age = 1:500))*
+                         rep.season(month = environment_10yr[i,4])),
+                  digits = 3))
+  
+  L <- odiag(Sx, at = -1)
+  L[1,] <- Fx
+
+  N_1000 <- L %*% N_1000
+  
+  results_int_1000$pop_size[i] <- sum(N_1000)
+}
+
+###10000
+
+for(i in 1:length(environment_10yr[,1])) {
+  Sx <- survival(depth = environment_10yr[i,1], size = growth(age = 1:500), age = 1:500)
+  Fx <- c(0,round(x = (frac.females *
+                         egg.number * 
+                         rep.depth(depth = environment_10yr[i,1]) *
+                         rep.temp (temp = environment_10yr[i,2])*
+                         sex.mature.ratio(growth(age = 1:500))*
+                         rep.season(month = environment_10yr[i,4])),
+                  digits = 3))
+  
+  L <- odiag(Sx, at = -1)
+  L[1,] <- Fx
+  
+  N_10000 <- L %*% N_10000
+  
+  results_int_10000$pop_size[i] <- sum(N_10000)
+}
+
+#--------------Step 3) calculate population growth ---------------
+
+#100
+
+lambda_100 <- mean(results_int_100$pop_size[results_int_100$julian == 32]/lag(results_int_100$pop_size[results_int_100$julian == 32]),na.rm = T)
+lambda_100
+
+r_100 <- log(lambda_100)
+r_100
+
+#1000
+
+lambda_1000 <- mean(results_int_1000$pop_size[results_int_1000$julian == 32]/lag(results_int_1000$pop_size[results_int_1000$julian == 32]),na.rm = T)
+lambda_1000
+
+r_1000 <- log(lambda_1000)
+r_1000
+
+#10000
+
+lambda_10000 <- mean(results_int_10000$pop_size[results_int_10000$julian == 32]/lag(results_int_10000$pop_size[results_int_10000$julian == 32]),na.rm = T)
+lambda_10000
+
+r_10000 <- log(lambda_10000)
+r_10000
+
+
+###no differences in initial size so I will just use 100
+
+
+#----------------------------------------------------------------------------
+####Simulation to chech stable size structure####
+#----------------------------------------------------------------------------
+
+#---------step 1) input data-------
+
+N_100 <- matrix(data = c(100,rep.int(0,times = 500)))
+
+environment_10yr <- tibble(depth = rep(environment_data$Depth_M2_cm, times = 10),
+                           temp = rep(environment_data$Temp_nat, times = 10),
+                           year = c(rep(1, times = 366),
+                                    rep(2, times = 366),
+                                    rep(3, times = 366),
+                                    rep(4, times = 366),
+                                    rep(5, times = 366),
+                                    rep(6, times = 366),
+                                    rep(7, times = 366),
+                                    rep(8, times = 366),
+                                    rep(9, times = 366),
+                                    rep(10, times = 366)),
+                           month = rep(month(environment_data$Date), times = 10),
+                           day = rep(day(environment_data$Date), times = 10),
+                           julian = rep(yday(environment_data$Date), times = 10))
+
+results_int_100 <- tibble(year = environment_10yr[,3],
+                          month = environment_10yr[,4],
+                          day = environment_10yr[,5],
+                          julian = environment_10yr[,6],
+                          pop_size = rep.int(0,times = length(environment_10yr[,1])))
+
+#----------Step 2) Loops for each year --------------#
+
+par(mfrow = c(3,4))
+
+###100
+
+for(j in 1:length(unique(environment_10yr$year))) {
+  
+  env_temp <- environment_10yr %>% filter(year == j)
+
+for(i in 1:366) {
+  Sx <- survival(depth = env_temp$depth[i], size = growth(age = 1:500), age = 1:500)
+  Fx <- c(0,round(x = (frac.females *
+                         egg.number * 
+                         rep.depth(depth = env_temp$depth[i]) *
+                         rep.temp (temp = env_temp$temp[i])*
+                         sex.mature.ratio(growth(age = 1:500))*
+                         rep.season(month = env_temp$month[i])),
+                  digits = 3))
+  
+  L <- odiag(Sx, at = -1)
+  L[1,] <- Fx
+  
+  N_100 <- L %*% N_100
+}
+print(sum(N_100))
+plot(N_100)
+}
+
+par(mfrow = c(1,1))
+
+###stable size structure has been met
+
+#----------------------------------------------------------------------------
+####Isocline Simulations data####
+#----------------------------------------------------------------------------
+
+
+#------------------Step 1) input data --------------------#
+
+#population vector
+N_LILA_int <- matrix(data = c(100,rep.int(0,times = 500)))
+N_WCA02_int <- matrix(data = c(100,rep.int(0,times = 500)))
+N_WCA03_int <- matrix(data = c(100,rep.int(0,times = 500)))
+
+#Environmental Data
+
+LILA_10yr <- tibble(depth = rep(environment_data$Depth_M2_cm, times = 10),
+                           temp = rep(environment_data$Temp_nat, times = 10),
+                           year = c(rep(1, times = 366),
+                                    rep(2, times = 366),
+                                    rep(3, times = 366),
+                                    rep(4, times = 366),
+                                    rep(5, times = 366),
+                                    rep(6, times = 366),
+                                    rep(7, times = 366),
+                                    rep(8, times = 366),
+                                    rep(9, times = 366),
+                                    rep(10, times = 366)),
+                           month = rep(month(environment_data$Date), times = 10),
+                           day = rep(day(environment_data$Date), times = 10),
+                           julian = rep(yday(environment_data$Date), times = 10))
+
+LILA_10yr <- as.matrix(LILA_10yr)
+
+WCA02_10yr<- tibble(depth = rep(WCA_depth_summ$depth_ave[WCA_depth_summ$wetland == "WCA02"], times = 10),
+                    temp = rep(WCA_temp_summ$temp_ave, times = 10),
+                    year = c(rep(1, times = 365),
+                             rep(2, times = 365),
+                             rep(3, times = 365),
+                             rep(4, times = 365),
+                             rep(5, times = 365),
+                             rep(6, times = 365),
+                             rep(7, times = 365),
+                             rep(8, times = 365),
+                             rep(9, times = 365),
+                             rep(10, times = 365)),
+                    month = rep(month(WCA_temp_summ$date), times = 10),
+                    day = rep(day(WCA_temp_summ$date), times = 10),
+                    julian = rep(yday(WCA_temp_summ$date), times = 10))
+
+WCA02_10yr <- as.matrix(WCA02_10yr)
+
+WCA03_10yr<- tibble(depth = rep(WCA_depth_summ$depth_ave[WCA_depth_summ$wetland == "WCA03"], times = 10),
+                    temp = rep(WCA_temp_summ$temp_ave, times = 10),
+                    year = c(rep(1, times = 365),
+                             rep(2, times = 365),
+                             rep(3, times = 365),
+                             rep(4, times = 365),
+                             rep(5, times = 365),
+                             rep(6, times = 365),
+                             rep(7, times = 365),
+                             rep(8, times = 365),
+                             rep(9, times = 365),
+                             rep(10, times = 365)),
+                    month = rep(month(WCA_temp_summ$date), times = 10),
+                    day = rep(day(WCA_temp_summ$date), times = 10),
+                    julian = rep(yday(WCA_temp_summ$date), times = 10))
+
+WCA03_10yr <- as.matrix(WCA03_10yr)
+
+LILA_5yr <- tibble(depth = rep(environment_data$Depth_M2_cm, times = 5),
+                    temp = rep(environment_data$Temp_nat, times = 5),
+                    year = c(rep(1, times = 366),
+                             rep(2, times = 366),
+                             rep(3, times = 366),
+                             rep(4, times = 366),
+                             rep(5, times = 366)),
+                    month = rep(month(environment_data$Date), times = 5),
+                    day = rep(day(environment_data$Date), times = 5),
+                    julian = rep(yday(environment_data$Date), times = 5))
+
+LILA_5yr <- as.matrix(LILA_5yr)
+
+WCA02_5yr<- tibble(depth = rep(WCA_depth_summ$depth_ave[WCA_depth_summ$wetland == "WCA02"], times = 5),
+                    temp = rep(WCA_temp_summ$temp_ave, times = 5),
+                    year = c(rep(1, times = 365),
+                             rep(2, times = 365),
+                             rep(3, times = 365),
+                             rep(4, times = 365),
+                             rep(5, times = 365)),
+                    month = rep(month(WCA_temp_summ$date), times = 5),
+                    day = rep(day(WCA_temp_summ$date), times = 5),
+                    julian = rep(yday(WCA_temp_summ$date), times = 5))
+
+WCA02_5yr <- as.matrix(WCA02_5yr)
+
+WCA03_5yr<- tibble(depth = rep(WCA_depth_summ$depth_ave[WCA_depth_summ$wetland == "WCA03"], times = 5),
+                    temp = rep(WCA_temp_summ$temp_ave, times = 5),
+                    year = c(rep(1, times = 365),
+                             rep(2, times = 365),
+                             rep(3, times = 365),
+                             rep(4, times = 365),
+                             rep(5, times = 365)),
+                    month = rep(month(WCA_temp_summ$date), times = 5),
+                    day = rep(day(WCA_temp_summ$date), times = 5),
+                    julian = rep(yday(WCA_temp_summ$date), times = 5))
+
+WCA03_5yr <- as.matrix(WCA03_5yr)
+
+
+results_temporary_LILA <- tibble(year = LILA_5yr[,3],
+                           month = LILA_5yr[,4],
+                           day = LILA_5yr[,5],
+                           julian = LILA_5yr[,6],
+                           pop_size = rep.int(0,times = length(LILA_5yr[,1])))
+
+results_temporary_WCA <- tibble(year = WCA02_5yr[,3],
+                       month = WCA02_5yr[,4],
+                       day = WCA02_5yr[,5],
+                       julian = WCA02_5yr[,6],
+                       pop_size = rep.int(0,times = length(WCA02_5yr[,1])))
+
+#------------------------------step 2) combinations of parameters for simulations ---------------------------#
+
+kgrowths <- seq(0.01,0.09, by = 0.005)
+S1 <- 0.987 - (c(0.05,0.1,0.15,0.2,0.3,0.5,0)*0.987)
+S2 <- 0.987 - (c(0.05,0.1,0.15,0.2,0.3,0.5,0)*0.987)
+
+threshold_data <- as_tibble(expand.grid(k = kgrowths,S1 = S1,S2 = S2)) %>% 
+  mutate(r_LILA = 0,
+         r_WCA02 = 0,
+         r_WCA03 = 0)
+
+threshold_data <- as.matrix(threshold_data)
+
+#--------------------------step 3) For loops  for initial population size#----------------------
+
+###initial 10 year simulation for LILA
+
+for(i in 1:length(LILA_10yr[,1])) {
+  Sx <- survival(depth = LILA_10yr[i,1], size = growth(age = 1:500), age = 1:500)
+  Fx <- c(0,round(x = (frac.females *
+                         egg.number * 
+                         rep.depth(depth = LILA_10yr[i,1]) *
+                         rep.temp (temp = LILA_10yr[i,2])*
+                         sex.mature.ratio(growth(age = 1:500))*
+                         rep.season(month = LILA_10yr[i,4])),
+                  digits = 3))
+  
+  L <- odiag(Sx, at = -1)
+  L[1,] <- Fx
+  
+  N_LILA_int <- L %*% N_LILA_int
+}
+
+###initial 10 year simulation for WCA02
+
+for(i in 1:length(WCA02_10yr[,1])) {
+  Sx <- survival(depth = WCA02_10yr[i,1], size = growth(age = 1:500), age = 1:500)
+  Fx <- c(0,round(x = (frac.females *
+                         egg.number * 
+                         rep.depth(depth = WCA02_10yr[i,1]) *
+                         rep.temp (temp = WCA02_10yr[i,2])*
+                         sex.mature.ratio(growth(age = 1:500))*
+                         rep.season(month = WCA02_10yr[i,4])),
+                  digits = 3))
+  
+  L <- odiag(Sx, at = -1)
+  L[1,] <- Fx
+  
+  N_WCA02_int <- L %*% N_WCA02_int
+}
+
+###initial 10 year simulation for WCA03
+
+for(i in 1:length(WCA03_10yr[,1])) {
+  Sx <- survival(depth = WCA03_10yr[i,1], size = growth(age = 1:500), age = 1:500)
+  Fx <- c(0,round(x = (frac.females *
+                         egg.number * 
+                         rep.depth(depth = WCA03_10yr[i,1]) *
+                         rep.temp (temp = WCA03_10yr[i,2])*
+                         sex.mature.ratio(growth(age = 1:500))*
+                         rep.season(month = WCA03_10yr[i,4])),
+                  digits = 3))
+  
+  L <- odiag(Sx, at = -1)
+  L[1,] <- Fx
+  
+  N_WCA03_int <- L %*% N_WCA03_int
+}
+
+#check the populaiton vectors
+plot(N_LILA_int)
+plot(N_WCA02_int)
+plot(N_WCA03_int)
+
+
+#--------------------------step 4) For loop for population simulations to get isocline data#----------------------
+
+
+###For LILA
+
+for(j in 1:length(threshold_data[,1])) {
+  
+  #restarts the similuation using our inital population structure
+  N_LILA <- N_LILA_int 
+  
+  for(i in 1:1830) {
+    Sx <- survival(depth = LILA_5yr[i,1], size = growth(age = 1:500,growth.rate = threshold_data[j,1]), age = 1:500,
+                   Surv1 = threshold_data[j,2],Surv2 = threshold_data[j,3])
+    Fx <- c(0,round(x = (frac.females *
+                           egg.number * 
+                           rep.depth(depth = LILA_5yr[i,1]) *
+                           rep.temp (temp = LILA_5yr[i,2])*
+                           sex.mature.ratio(growth(age = 1:500,growth.rate = threshold_data[j,1]))*
+                           rep.season(month = LILA_5yr[i,4])),
+                    digits = 3))
+    
+    L <- odiag(Sx, at = -1)
+    L[1,] <- Fx
+    
+    N_LILA <- L %*% N_LILA
+    results_temporary_LILA$pop_size[i] <- sum(N_LILA)
+  }
+  threshold_data[j,4] <- log(mean(results_temporary_LILA$pop_size[results_temporary_LILA$julian == 32]/lag(results_temporary_LILA$pop_size[results_temporary_LILA$julian == 32]),na.rm = T))
+  print(j)
+}
+
+
+###For WCA02
+
+for(j in 1:length(threshold_data[,1])) {
+  
+  #restarts the similuation using our inital population structure
+  N_WCA02 <- N_WCA02_int 
+  
+  for(i in 1:1825) {
+    Sx <- survival(depth = WCA02_5yr[i,1], size = growth(age = 1:500,growth.rate = threshold_data[j,1]), age = 1:500,
+                   Surv1 = threshold_data[j,2],Surv2 = threshold_data[j,3])
+    Fx <- c(0,round(x = (frac.females *
+                           egg.number * 
+                           rep.depth(depth = WCA02_5yr[i,1])*
+                           rep.temp (temp = WCA02_5yr[i,2])*
+                           sex.mature.ratio(growth(age = 1:500,growth.rate = threshold_data[j,1]))*
+                           rep.season(month = WCA02_5yr[i,4])),
+                    digits = 3))
+    
+    L <- odiag(Sx, at = -1)
+    L[1,] <- Fx
+    
+    N_WCA02 <- L %*% N_WCA02
+    results_temporary_WCA$pop_size[i] <- sum(N_WCA02)
+  }
+  threshold_data[j,5] <- log(mean(results_temporary_WCA$pop_size[results_temporary_WCA$julian == 32]/lag(results_temporary_WCA$pop_size[results_temporary_WCA$julian == 32]),na.rm = T))
+  print(j)
+}
+
+###For WCA03
+
+for(j in 1:length(threshold_data[,1])) {
+  
+  #restarts the similuation using our inital population structure
+  N_WCA03 <- N_WCA03_int 
+  
+  for(i in 1:1825) {
+    Sx <- survival(depth = WCA03_5yr[i,1], size = growth(age = 1:500,growth.rate = threshold_data[j,1]), age = 1:500,
+                   Surv1 = threshold_data[j,2],Surv2 = threshold_data[j,3])
+    Fx <- c(0,round(x = (frac.females *
+                           egg.number * 
+                           rep.depth(depth = WCA03_5yr[i,1])*
+                           rep.temp (temp = WCA03_5yr[i,2])*
+                           sex.mature.ratio(growth(age = 1:500,growth.rate = threshold_data[j,1]))*
+                           rep.season(month = WCA03_5yr[i,4])),
+                    digits = 3))
+    
+    L <- odiag(Sx, at = -1)
+    L[1,] <- Fx
+    
+    N_WCA03 <- L %*% N_WCA03
+    results_temporary_WCA$pop_size[i] <- sum(N_WCA03)
+  }
+  threshold_data[j,6] <- log(mean(results_temporary_WCA$pop_size[results_temporary_WCA$julian == 32]/lag(results_temporary_WCA$pop_size[results_temporary_WCA$julian == 32]),na.rm = T))
+  print(j)
+}
