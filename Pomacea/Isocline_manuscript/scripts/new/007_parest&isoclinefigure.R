@@ -299,7 +299,9 @@ p20 <- isodat_M2 %>%
   annotate(geom = "text", x = 0.88, y = 0.038, label = "with")+
   annotate(geom = "text", x = 0.86, y = 0.038, label = "predators")+
   theme(legend.position = c(0.52,0.13),
-        legend.box = "horizontal")
+        legend.box = "horizontal",
+        axis.title = element_text(size = 24),
+        axis.text = element_text(size = 20))
   
 #environmental data plot
 
@@ -332,6 +334,6 @@ patch.isocline.annotate<- patch.isocline +
 
 patch.isocline.annotate
 
-ggsave(here("Pomacea/Isocline_manuscript/out","fig4_isocline.png"),
-       patch.isocline.annotate, device = ragg::agg_png,
-       units = "in", width = 12, height = 6)
+ggsave(here("Pomacea/Isocline_manuscript/out","HYDROGRA_geer.pdf"),
+       patch.isocline.annotate, device = pdf,
+       units = "in", width = 6, height = 6)

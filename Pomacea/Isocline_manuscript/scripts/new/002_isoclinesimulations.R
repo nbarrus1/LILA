@@ -758,3 +758,8 @@ for(j in 1:length(threshold_data[,1])) {
   threshold_data[j,6] <- log(mean(results_temporary_WCA$pop_size[results_temporary_WCA$julian == 32]/lag(results_temporary_WCA$pop_size[results_temporary_WCA$julian == 32]),na.rm = T))
   print(j)
 }
+
+
+threshold_data <- as_tibble(threshold_data)
+
+write_csv(threshold_data, file = here("Pomacea/Isocline_manuscript/out","threshold_data.csv"))
