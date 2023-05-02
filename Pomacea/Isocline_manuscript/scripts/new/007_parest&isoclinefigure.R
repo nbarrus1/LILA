@@ -84,68 +84,89 @@ for (i in 1:length(isodat_M2$k)) {
 ###empirical estimates of parameters####
 #------------------------------------
 
-###growth parameters
+###growth parameters old estimates
 
-fit_me <- lmer(SGR ~ Start_mm + (1|Cage), data = growthdata[growthdata$Season == "dry",])
-model_summ <- summary(fit_me)  #results suggest a nonsignificant effect on the treatment
+#fit_me <- lmer(SGR ~ Start_mm + (1|Cage), data = growthdata[growthdata$Season == "dry",])
+#model_summ <- summary(fit_me)  #results suggest a nonsignificant effect on the treatment
 
-dry_est <- model_summ$coefficients[1,1]
+#dry_est <- model_summ$coefficients[1,1]
 
-dry_CI <- as_tibble(confint(fit_me,parm = "(Intercept)",level = 0.95))
+#dry_CI <- as_tibble(confint(fit_me,parm = "(Intercept)",level = 0.95))
 
 #wet season LILA
-fit_me <- lmer(SGR ~ Start_mm + (1|Cage), data = growthdata[growthdata$Season == "wet",])
-model_summ <- summary(fit_me)
+#fit_me <- lmer(SGR ~ Start_mm + (1|Cage), data = growthdata[growthdata$Season == "wet",])
+#model_summ <- summary(fit_me)
 
-wet_est <- model_summ$coefficients[1,1]
+#wet_est <- model_summ$coefficients[1,1]
 
-wet_CI <- as_tibble(confint(fit_me,parm = "(Intercept)",level = 0.95))
+#wet_CI <- as_tibble(confint(fit_me,parm = "(Intercept)",level = 0.95))
 
 #combined LILA
-fit_me <- lmer(SGR ~ Start_mm + (1|Cage), data = growthdata)
-model_summ <- summary(fit_me)
+#fit_me <- lmer(SGR ~ Start_mm + (1|Cage), data = growthdata)
+#model_summ <- summary(fit_me)
 
-comb_est <- model_summ$coefficients[1,1]
+#comb_est <- model_summ$coefficients[1,1]
 
-comb_CI <- as_tibble(confint(fit_me,parm = "(Intercept)",level = 0.95))
+#comb_CI <- as_tibble(confint(fit_me,parm = "(Intercept)",level = 0.95))
+
+LILA_k <- growthdata %>% 
+  filter(Treatment == "0%_exposure") %>% 
+  drop_na(k) %>% 
+  group_by(Season) %>% 
+  summarise(k_ave = mean(k, na.rm = T),
+            n_obs = n(),
+            k_sd = sd(k, na.rm = T)) %>% 
+  mutate(k_se = k_sd/ sqrt(n_obs),
+         upp = k_ave + (1.96*k_se),
+         low = k_ave - (1.96*k_se))
+
+LILA_k_comb <- growthdata %>% 
+  filter(Treatment == "0%_exposure") %>% 
+  drop_na(k) %>% 
+  summarise(k_ave = mean(k, na.rm = T),
+            n_obs = n(),
+            k_sd = sd(k, na.rm = T)) %>% 
+  mutate(k_se = k_sd/ sqrt(n_obs),
+         upp = k_ave + (1.96*k_se),
+         low = k_ave - (1.96*k_se))
 
 ####WCA Growth Rate###
 #regression
-growthvsTPregression <- lmer(SGR_length~species + TP + species:TP + (1| year),
+growthvsTPregression <- lmer(Growth_length~species + TP + species:TP + (1| year),
                              data = growth.summ)
 
 summary(growthvsTPregression)
 
-b0 <- 0.02379-0.01247
-b1 <- 0.0001096-0.00008831
+b0 <- -0.0414728+0.3267086
+b1 <- 0.0026002-0.0022298
 
-#WCA estimate
+#WCA old estimate
 
-WCA_TP_par <- WCA_TP %>% 
-  group_by(Site) %>% 
-  summarise(n_obs = n(),
-            TP_ave = mean(TP),
-            sd_ave = sd(TP)) %>% 
-  mutate(se = sd_ave/(sqrt(n_obs)),
-         upp = TP_ave + 1.96*se,
-         low = TP_ave - 1.96*se,
-         k = b0+b1*TP_ave,
-         k_upp = b0+b1*upp,
-         k_low = b0+b1*low,
-         season = "wet",
-         Site = if_else(Site == "WCA2", true = "WCA02",
-                        false = if_else(Site == "WCA3",
-                                        true = "WCA03",
-                                        false = "error")))
+#WCA_TP_par <- WCA_TP %>% 
+#  group_by(Site) %>% 
+#  summarise(n_obs = n(),
+#            TP_ave = mean(TP),
+#            sd_ave = sd(TP)) %>% 
+#  mutate(se = sd_ave/(sqrt(n_obs)),
+#         upp = TP_ave + 1.96*se,
+#         low = TP_ave - 1.96*se,
+#         k = b0+b1*TP_ave,
+#         k_upp = b0+b1*upp,
+#         k_low = b0+b1*low,
+#         season = "wet",
+#         Site = if_else(Site == "WCA2", true = "WCA02",
+#                        false = if_else(Site == "WCA3",
+#                                        true = "WCA03",
+#                                        false = "error")))
   
 
 #combine all estimates into one
 
 k <- tibble(Site = c(rep("LILA", times = 3),WCA_TP_par$Site),
              Season = c("dry","wet","Combined",WCA_TP_par$season),
-             k = c(dry_est,wet_est,comb_est, WCA_TP_par$k),
-             k_upp =as.double(c(dry_CI[1,2],wet_CI[1,2],comb_CI[1,2], WCA_TP_par$k_upp)),
-             k_low = as.double(c(dry_CI[1,1],wet_CI[1,1],comb_CI[1,2],WCA_TP_par$k_low)))
+             k = c(LILA_k$k_ave,LILA_k_comb$k_ave,0.058528084,0.048985688),
+             k_upp =as.double(c(LILA_k$upp,LILA_k_comb$upp, 0.059445,0.050099)),
+             k_low = as.double(c(LILA_k$low,LILA_k_comb$low,0.057604,0.047855)))
 k
 
 ######CJS survival estimates####
@@ -254,8 +275,8 @@ parameter
 
 p20 <- isodat_M2 %>% 
   ggplot(aes(x = Sint, y  = as.numeric(k)))+
-  geom_point(aes(x = (0.987*.987), y = 0.05), size = 3, shape = 21, color = "black",
-             fill = "dark red")+
+ # geom_point(aes(x = (0.987*.987), y = 0.05), size = 3, shape = 21, color = "black",
+ #            fill = "dark red")+
   geom_smooth(color = "#333333", size = 1.5, linetype = 1, se = F)+
   geom_smooth(data = isodat_opt, color = "#999999", linewidth = 1.5, linetype = 1, se = F)+
   geom_smooth(data = isodat_M3, color = "black", linewidth = 1.5, linetype = 1, se = F)+
@@ -270,15 +291,17 @@ p20 <- isodat_M2 %>%
   scale_y_continuous(breaks = c(0.01,0.03,0.05,0.07,0.09))+
   scale_x_continuous(limits = c(0.65,1.04), breaks = c(0.65,0.7,0.75,0.8,0.85,0.9,0.95,1.00))+
   labs(x ="Cumulative Juvenile Survival", y ="Growth (k)")+
-  annotate(geom = "text", x = 0.75, y = 0.045, label = "Population declining")+
-  annotate(geom = "text", x = 0.925, y = 0.07, label = "Population increasing")+
-  annotate(geom = "text", x = 0.993, y = 0.05, label = "(model parameters)",
-         size = 3, color = "dark red")+
-  annotate(geom = "text", x = 1.02, y = 0.022, label = "without predators")+
-  annotate(geom = "text", x = 0.83, y = 0.028, label = "with")+
-  annotate(geom = "text", x = 0.81, y = 0.028, label = "predators")+
-  theme(legend.position = c(0.32,0.13),
-        legend.box = "horizontal")
+  annotate(geom = "text", x = 0.73, y = 0.018, label = "Declining", size = 8)+
+  annotate(geom = "text", x = 0.925, y = 0.075, label = "Increasing", size = 8)+
+  #annotate(geom = "text", x = 0.993, y = 0.05, label = "(model parameters)",
+  #       size = 3, color = "dark red")+
+  annotate(geom = "text", x = 1.02, y = 0.039, label = "without predators")+
+  annotate(geom = "text", x = 0.88, y = 0.038, label = "with")+
+  annotate(geom = "text", x = 0.86, y = 0.038, label = "predators")+
+  theme(legend.position = c(0.52,0.13),
+        legend.box = "horizontal",
+        axis.title = element_text(size = 24),
+        axis.text = element_text(size = 20))
   
 #environmental data plot
 
@@ -311,6 +334,6 @@ patch.isocline.annotate<- patch.isocline +
 
 patch.isocline.annotate
 
-ggsave(here("Pomacea/Isocline_manuscript/out","fig4_isocline.png"),
-       patch.isocline.annotate, device = ragg::agg_png,
-       units = "in", width = 12, height = 6)
+ggsave(here("Pomacea/Isocline_manuscript/out","HYDROGRA_geer.pdf"),
+       patch.isocline.annotate, device = pdf,
+       units = "in", width = 6, height = 6)

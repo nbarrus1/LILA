@@ -12,7 +12,7 @@ library(MuMIn)
 #####analysis####
 #--------------------------------------
 
-####growth rate parameters####
+####growth rate parameters old way####
 
 #dry season LILA
 
@@ -53,7 +53,24 @@ t.test(TP_data$TP[TP_data$Treatment == "0%_exposure"],
 t.test(TP_data$TP[TP_data$Treatment == "0%_exposure"],
        TP_data$TP[TP_data$Treatment == "17%_exposure" & TP_data$Cage != 5 & TP_data$Cage != 3])  
 
+####growth rate parameters Correct way#####
 
+growthdata %>% 
+  #filter(Treatment == "0%_exposure") %>% 
+  ggplot(aes(y = SGR, x = Length_Mean, color = Season))+
+  geom_point()+
+  geom_smooth(method = "lm",se = F)+
+  facet_wrap(~Season)+
+  theme_classic()
+
+
+no_exposure_wet <- growthdata %>% 
+  filter(Treatment == "0%_exposure")
+
+
+fit <- lm(SGR~Length_Mean* Season, data = growthdata)
+
+summary(fit)
 #-------------------------------
 ####plots exposure treatment results ####
 #-------------------------------
